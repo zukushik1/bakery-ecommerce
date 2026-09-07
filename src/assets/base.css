@@ -1,0 +1,106 @@
+/* ========================================
+   JERICHO & NESYA
+   GLOBAL BASE STYLE
+======================================== */
+
+:root {
+  --white: #ffffff;
+  --cream: #f7f5ed;
+  --cream-soft: #f1f4dc;
+
+  --green: #748b69;
+  --green-dark: #536b4b;
+  --green-light: #dce7c9;
+
+  --pink: #f7b6b4;
+  --pink-soft: #fde8e6;
+
+  --text: #1f241d;
+  --text-soft: #5f625b;
+
+  --border: #e4e1d7;
+}
+
+/* ========================================
+   RESET
+======================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
+  background: var(--cream);
+  color: var(--text);
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  line-height: 1.5;
+  font-size: 15px;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  overflow-x: hidden;
+}
+
+/* ========================================
+   APP
+======================================== */
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========================================
+   DEFAULT ELEMENTS
+======================================== */
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
