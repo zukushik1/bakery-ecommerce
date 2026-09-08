@@ -35,9 +35,7 @@ const customers = ref([
     name: 'Rina Amelia',
     email: 'rina.amelia@gmail.com',
     phone: '081234567890',
-    orders: 8,
     totalSpent: 1250000,
-    status: 'Aktif',
     joined: '12 Jan 2026'
   },
   {
@@ -45,9 +43,7 @@ const customers = ref([
     name: 'Dimas Pratama',
     email: 'dimas.pratama@gmail.com',
     phone: '082345678901',
-    orders: 5,
     totalSpent: 675000,
-    status: 'Aktif',
     joined: '20 Jan 2026'
   },
   {
@@ -55,9 +51,7 @@ const customers = ref([
     name: 'Siti Rahma',
     email: 'siti.rahma@gmail.com',
     phone: '083456789012',
-    orders: 12,
     totalSpent: 1985000,
-    status: 'Aktif',
     joined: '03 Feb 2026'
   },
   {
@@ -65,9 +59,7 @@ const customers = ref([
     name: 'Fajar Nugraha',
     email: 'fajar.nugraha@gmail.com',
     phone: '084567890123',
-    orders: 4,
     totalSpent: 520000,
-    status: 'Aktif',
     joined: '15 Feb 2026'
   },
   {
@@ -75,9 +67,7 @@ const customers = ref([
     name: 'Nadia Putri',
     email: 'nadia.putri@gmail.com',
     phone: '085678901234',
-    orders: 7,
     totalSpent: 945000,
-    status: 'Aktif',
     joined: '28 Feb 2026'
   },
   {
@@ -85,9 +75,7 @@ const customers = ref([
     name: 'Rizky Maulana',
     email: 'rizky.maulana@gmail.com',
     phone: '086789012345',
-    orders: 2,
     totalSpent: 210000,
-    status: 'Tidak Aktif',
     joined: '05 Mar 2026'
   }
 ])
@@ -130,7 +118,6 @@ const deleteCustomer = (id) => {
     customer => customer.id !== id
   )
 
-  /* Kalau pelanggan yang sedang dilihat dihapus */
   if (selectedCustomer.value?.id === id) {
     closeDetail()
   }
@@ -154,7 +141,6 @@ const viewCustomer = (customer) => {
   selectedCustomer.value = customer
   showDetail.value = true
 
-  /* Biar halaman tidak bisa discroll saat modal terbuka */
   document.body.style.overflow = 'hidden'
 }
 
@@ -515,82 +501,6 @@ const handleModalBackground = (event) => {
           </div>
 
 
-          <!-- PELANGGAN AKTIF -->
-
-          <div class="stat-card">
-
-            <div class="stat-top">
-
-              <div class="stat-icon pink">
-                ✓
-              </div>
-
-              <span class="stat-badge">
-                Aktif
-              </span>
-
-            </div>
-
-            <p class="stat-label">
-              Pelanggan Aktif
-            </p>
-
-            <h3>
-
-              {{
-                customers.filter(
-                  customer => customer.status === 'Aktif'
-                ).length
-              }}
-
-            </h3>
-
-            <span class="stat-footer">
-              pelanggan aktif
-            </span>
-
-          </div>
-
-
-          <!-- TOTAL PESANAN -->
-
-          <div class="stat-card">
-
-            <div class="stat-top">
-
-              <div class="stat-icon peach">
-                🛍
-              </div>
-
-              <span class="stat-badge">
-                Pesanan
-              </span>
-
-            </div>
-
-            <p class="stat-label">
-              Total Pesanan
-            </p>
-
-            <h3>
-
-              {{
-                customers.reduce(
-                  (total, customer) =>
-                    total + customer.orders,
-                  0
-                )
-              }}
-
-            </h3>
-
-            <span class="stat-footer">
-              seluruh pelanggan
-            </span>
-
-          </div>
-
-
           <!-- TOTAL PEMBELIAN -->
 
           <div class="stat-card">
@@ -630,6 +540,7 @@ const handleModalBackground = (event) => {
             </span>
 
           </div>
+
 
         </div>
 
@@ -701,15 +612,7 @@ const handleModalBackground = (event) => {
               </span>
 
               <span>
-                PESANAN
-              </span>
-
-              <span>
                 TOTAL BELANJA
-              </span>
-
-              <span>
-                STATUS
               </span>
 
               <span>
@@ -776,17 +679,6 @@ const handleModalBackground = (event) => {
               </div>
 
 
-              <!-- ORDERS -->
-
-              <div class="customer-cell">
-
-                <span class="orders-count">
-                  {{ customer.orders }} pesanan
-                </span>
-
-              </div>
-
-
               <!-- TOTAL -->
 
               <div class="customer-cell">
@@ -794,25 +686,6 @@ const handleModalBackground = (event) => {
                 <strong class="total-price">
                   Rp {{ formatPrice(customer.totalSpent) }}
                 </strong>
-
-              </div>
-
-
-              <!-- STATUS -->
-
-              <div class="customer-cell">
-
-                <span
-                  class="customer-status"
-                  :class="{
-                    active: customer.status === 'Aktif',
-                    inactive: customer.status !== 'Aktif'
-                  }"
-                >
-
-                  {{ customer.status }}
-
-                </span>
 
               </div>
 
@@ -969,22 +842,6 @@ const handleModalBackground = (event) => {
 
           </div>
 
-
-          <span
-            class="customer-status modal-status"
-            :class="{
-              active:
-                selectedCustomer.status === 'Aktif',
-
-              inactive:
-                selectedCustomer.status !== 'Aktif'
-            }"
-          >
-
-            {{ selectedCustomer.status }}
-
-          </span>
-
         </div>
 
 
@@ -1033,21 +890,6 @@ const handleModalBackground = (event) => {
 
             <strong>
               {{ selectedCustomer.joined }}
-            </strong>
-
-          </div>
-
-
-          <!-- ORDERS -->
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              TOTAL PESANAN
-            </span>
-
-            <strong>
-              {{ selectedCustomer.orders }} pesanan
             </strong>
 
           </div>
@@ -1575,7 +1417,7 @@ const handleModalBackground = (event) => {
   display: grid;
 
   grid-template-columns:
-    repeat(4, 1fr);
+    repeat(2, 1fr);
 
   gap: 20px;
 
@@ -1623,18 +1465,6 @@ const handleModalBackground = (event) => {
   background: #e8efdf;
 
   color: #6d8560;
-}
-
-.stat-icon.pink {
-  background: #fce7e5;
-
-  color: #d98f8c;
-}
-
-.stat-icon.peach {
-  background: #f9eadc;
-
-  color: #c78c62;
 }
 
 .stat-icon.cream {
@@ -1816,9 +1646,7 @@ const handleModalBackground = (event) => {
   grid-template-columns:
     2fr
     1.7fr
-    1fr
     1.25fr
-    0.9fr
     0.8fr;
 
   align-items: center;
@@ -1974,25 +1802,6 @@ const handleModalBackground = (event) => {
 
 
 /* =========================
-   ORDERS
-========================= */
-
-.orders-count {
-  padding: 6px 10px;
-
-  border-radius: 20px;
-
-  background: #f1f3e8;
-
-  color: #718064;
-
-  font-size: 9px;
-
-  font-weight: 600;
-}
-
-
-/* =========================
    TOTAL
 ========================= */
 
@@ -2002,33 +1811,6 @@ const handleModalBackground = (event) => {
   color: #5e6f55;
 
   white-space: nowrap;
-}
-
-
-/* =========================
-   STATUS
-========================= */
-
-.customer-status {
-  padding: 6px 10px;
-
-  border-radius: 20px;
-
-  font-size: 9px;
-
-  font-weight: 600;
-}
-
-.customer-status.active {
-  background: #e7f1e3;
-
-  color: #66805d;
-}
-
-.customer-status.inactive {
-  background: #f0f0ed;
-
-  color: #999;
 }
 
 
@@ -2316,10 +2098,6 @@ const handleModalBackground = (event) => {
   color: #999;
 }
 
-.modal-status {
-  flex-shrink: 0;
-}
-
 
 /* DETAIL GRID */
 
@@ -2502,7 +2280,7 @@ const handleModalBackground = (event) => {
 
   .table-head,
   .customer-row {
-    min-width: 850px;
+    min-width: 700px;
   }
 
 }
@@ -2763,9 +2541,7 @@ const handleModalBackground = (event) => {
     grid-template-columns:
       1.7fr
       1.3fr
-      0.9fr
       1fr
-      0.8fr
       0.7fr;
 
     column-gap: 6px;
@@ -2805,13 +2581,6 @@ const handleModalBackground = (event) => {
   }
 
   .contact-cell span {
-    font-size: 7px;
-  }
-
-  .orders-count,
-  .customer-status {
-    padding: 5px 6px;
-
     font-size: 7px;
   }
 
@@ -2861,14 +2630,6 @@ const handleModalBackground = (event) => {
 
   .detail-full {
     grid-column: auto;
-  }
-
-  .modal-profile {
-    flex-wrap: wrap;
-  }
-
-  .modal-status {
-    margin-left: 62px;
   }
 
 
@@ -3029,9 +2790,9 @@ const handleModalBackground = (event) => {
     font-size: 9px;
   }
 
-  .customer-cell:nth-child(3),
-  .customer-cell:nth-child(4),
-  .customer-cell:nth-child(5) {
+  /* TOTAL BELANJA */
+
+  .customer-cell:nth-child(3) {
     width: 100%;
 
     justify-content: space-between;
@@ -3040,14 +2801,6 @@ const handleModalBackground = (event) => {
   }
 
   .customer-cell:nth-child(3)::before {
-    content: "Pesanan";
-
-    font-size: 10px;
-
-    color: #999;
-  }
-
-  .customer-cell:nth-child(4)::before {
     content: "Total Belanja";
 
     font-size: 10px;
@@ -3055,25 +2808,11 @@ const handleModalBackground = (event) => {
     color: #999;
   }
 
-  .customer-cell:nth-child(5)::before {
-    content: "Status";
-
-    font-size: 10px;
-
-    color: #999;
-  }
-
-  .orders-count {
-    font-size: 9px;
-  }
-
   .total-price {
     font-size: 10px;
   }
 
-  .customer-status {
-    font-size: 8px;
-  }
+  /* ACTION */
 
   .action-cell {
     justify-content: flex-end;
@@ -3112,10 +2851,6 @@ const handleModalBackground = (event) => {
 
   .modal-profile-info h3 {
     font-size: 16px;
-  }
-
-  .modal-status {
-    margin-left: 52px;
   }
 
   .detail-item {
