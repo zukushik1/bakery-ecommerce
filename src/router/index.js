@@ -6,7 +6,7 @@ import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Produk from '../views/Produk.vue'
 import Pesanan from '../views/Pesanan.vue'
-import Pelanggan from '../views/Pelanggan.vue'
+import HistoryPelanggan from '../views/HistoryPelanggan.vue'
 import Pengaturan from '../views/Pengaturan.vue'
 
 const routes = [
@@ -46,9 +46,9 @@ const routes = [
   },
 
   {
-    path: '/pelanggan',
-    name: 'pelanggan',
-    component: Pelanggan
+    path: '/history-pelanggan',
+    name: 'history-pelanggan',
+    component: HistoryPelanggan
   },
 
   {

@@ -226,7 +226,6 @@ const logout = () => {
 }
 </script>
 
-
 <template>
   <div class="dashboard-page">
 
@@ -264,8 +263,15 @@ const logout = () => {
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">⌂</span>
-          <span>Dashboard</span>
+
+          <span class="menu-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
         </router-link>
 
 
@@ -275,8 +281,15 @@ const logout = () => {
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">🍰</span>
-          <span>Produk</span>
+
+          <span class="menu-icon">
+            🍰
+          </span>
+
+          <span>
+            Produk
+          </span>
+
         </router-link>
 
 
@@ -286,19 +299,33 @@ const logout = () => {
           class="menu-item active"
           @click="closeMenu"
         >
-          <span class="menu-icon">🛍</span>
-          <span>Pesanan</span>
+
+          <span class="menu-icon">
+            🛍
+          </span>
+
+          <span>
+            Pesanan
+          </span>
+
         </router-link>
 
 
-        <!-- PELANGGAN -->
+        <!-- HISTORY PELANGGAN -->
         <router-link
-          to="/pelanggan"
+          to="/history-pelanggan"
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">♙</span>
-          <span>Pelanggan</span>
+
+          <span class="menu-icon">
+            ♙
+          </span>
+
+          <span>
+            History Pelanggan
+          </span>
+
         </router-link>
 
 
@@ -313,8 +340,15 @@ const logout = () => {
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">⚙</span>
-          <span>Pengaturan</span>
+
+          <span class="menu-icon">
+            ⚙
+          </span>
+
+          <span>
+            Pengaturan
+          </span>
+
         </router-link>
 
       </nav>
@@ -330,8 +364,15 @@ const logout = () => {
           </div>
 
           <div class="profile-info">
-            <strong>Admin</strong>
-            <span>Administrator</span>
+
+            <strong>
+              Admin
+            </strong>
+
+            <span>
+              Administrator
+            </span>
+
           </div>
 
         </div>
@@ -341,8 +382,13 @@ const logout = () => {
           class="logout-button"
           @click="logout"
         >
-          <span>↪</span>
+
+          <span>
+            ↪
+          </span>
+
           Logout
+
         </button>
 
       </div>
@@ -395,7 +441,6 @@ const logout = () => {
         <!-- TOPBAR RIGHT -->
         <div class="topbar-right">
 
-          <!-- ADMIN -->
           <div class="top-admin">
 
             <div class="top-avatar">
@@ -760,8 +805,16 @@ const logout = () => {
               <div class="order-cell product-cell">
 
                 <span class="product-count">
-                  {{ order.items.reduce((total, item) => total + item.qty, 0) }}
+
+                  {{
+                    order.items.reduce(
+                      (total, item) => total + item.qty,
+                      0
+                    )
+                  }}
+
                   Produk
+
                 </span>
 
               </div>
@@ -783,11 +836,16 @@ const logout = () => {
                 <span
                   class="payment"
                   :class="{
-                    'paid': order.payment === 'Sudah Dibayar',
-                    'unpaid': order.payment === 'Belum Dibayar'
+                    'paid':
+                      order.payment === 'Sudah Dibayar',
+
+                    'unpaid':
+                      order.payment === 'Belum Dibayar'
                   }"
                 >
+
                   {{ order.payment }}
+
                 </span>
 
               </div>
@@ -800,7 +858,9 @@ const logout = () => {
                   class="status"
                   :class="getStatusClass(order.status)"
                 >
+
                   {{ order.status }}
+
                 </span>
 
               </div>
@@ -872,7 +932,9 @@ const logout = () => {
                   class="status"
                   :class="getStatusClass(order.status)"
                 >
+
                   {{ order.status }}
+
                 </span>
 
               </div>
@@ -940,7 +1002,9 @@ const logout = () => {
                         order.payment === 'Belum Dibayar'
                     }"
                   >
+
                     {{ order.payment }}
+
                   </strong>
 
                 </div>
@@ -988,7 +1052,10 @@ const logout = () => {
         </div>
 
 
-        <!-- FOOTER -->
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
         <footer class="dashboard-footer">
 
           <span>
@@ -2267,7 +2334,7 @@ body {
 
 
 /* =========================
-   MOBILE / HAMBURGER
+   MOBILE
 ========================= */
 
 @media (max-width: 800px) {
@@ -2595,14 +2662,14 @@ body {
   }
 
 
-  /* HIDE TABLE */
+  /* HIDE DESKTOP TABLE */
 
   .orders-table {
     display: none;
   }
 
 
-  /* SHOW MOBILE CARDS */
+  /* SHOW MOBILE */
 
   .mobile-orders {
     display: block;
@@ -2671,7 +2738,7 @@ body {
   }
 
 
-  /* STATS 2 COLUMN */
+  /* STATS */
 
   .stats-grid {
     grid-template-columns: 1fr 1fr;
@@ -2831,4 +2898,5 @@ body {
   }
 
 }
+
 </style>

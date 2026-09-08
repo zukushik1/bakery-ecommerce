@@ -49,13 +49,14 @@
           <span>Pesanan</span>
         </router-link>
 
+        <!-- HISTORY PELANGGAN -->
         <router-link
-          to="/pelanggan"
+          to="/history-pelanggan"
           class="menu-item"
           @click="closeMenu"
         >
           <span class="menu-icon">♙</span>
-          <span>Pelanggan</span>
+          <span>History Pelanggan</span>
         </router-link>
 
         <p class="menu-title second-title">LAINNYA</p>

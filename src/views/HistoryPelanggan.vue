@@ -26,57 +26,63 @@ const selectedCustomer = ref(null)
 
 
 /* =========================
-   DATA PELANGGAN
+   DATA HISTORY PELANGGAN
 ========================= */
 
-const customers = ref([
+const customerHistory = ref([
   {
     id: 1,
     name: 'Rina Amelia',
-    email: 'rina.amelia@gmail.com',
     phone: '081234567890',
+    address: 'Jl. Soekarno Hatta No. 12',
+    totalTransaction: 3,
     totalSpent: 1250000,
-    joined: '12 Jan 2026'
+    lastPurchase: '05 Sep 2026'
   },
   {
     id: 2,
     name: 'Dimas Pratama',
-    email: 'dimas.pratama@gmail.com',
     phone: '082345678901',
+    address: 'Jl. Sudirman No. 25',
+    totalTransaction: 2,
     totalSpent: 675000,
-    joined: '20 Jan 2026'
+    lastPurchase: '03 Sep 2026'
   },
   {
     id: 3,
     name: 'Siti Rahma',
-    email: 'siti.rahma@gmail.com',
     phone: '083456789012',
+    address: 'Jl. Ahmad Yani No. 18',
+    totalTransaction: 5,
     totalSpent: 1985000,
-    joined: '03 Feb 2026'
+    lastPurchase: '02 Sep 2026'
   },
   {
     id: 4,
     name: 'Fajar Nugraha',
-    email: 'fajar.nugraha@gmail.com',
     phone: '084567890123',
+    address: 'Jl. Imam Bonjol No. 7',
+    totalTransaction: 1,
     totalSpent: 520000,
-    joined: '15 Feb 2026'
+    lastPurchase: '30 Agu 2026'
   },
   {
     id: 5,
     name: 'Nadia Putri',
-    email: 'nadia.putri@gmail.com',
     phone: '085678901234',
+    address: 'Jl. Veteran No. 31',
+    totalTransaction: 3,
     totalSpent: 945000,
-    joined: '28 Feb 2026'
+    lastPurchase: '28 Agu 2026'
   },
   {
     id: 6,
     name: 'Rizky Maulana',
-    email: 'rizky.maulana@gmail.com',
     phone: '086789012345',
+    address: 'Jl. Khatib Sulaiman No. 9',
+    totalTransaction: 1,
     totalSpent: 210000,
-    joined: '05 Mar 2026'
+    lastPurchase: '25 Agu 2026'
   }
 ])
 
@@ -89,13 +95,39 @@ const filteredCustomers = computed(() => {
   const keyword = searchQuery.value.toLowerCase().trim()
 
   if (!keyword) {
-    return customers.value
+    return customerHistory.value
   }
 
-  return customers.value.filter(customer =>
+  return customerHistory.value.filter(customer =>
     customer.name.toLowerCase().includes(keyword) ||
-    customer.email.toLowerCase().includes(keyword) ||
-    customer.phone.includes(keyword)
+    customer.phone.includes(keyword) ||
+    customer.address.toLowerCase().includes(keyword)
+  )
+})
+
+
+/* =========================
+   TOTAL TRANSAKSI
+========================= */
+
+const totalTransactions = computed(() => {
+  return customerHistory.value.reduce(
+    (total, customer) =>
+      total + customer.totalTransaction,
+    0
+  )
+})
+
+
+/* =========================
+   TOTAL PEMBELIAN
+========================= */
+
+const totalSpent = computed(() => {
+  return customerHistory.value.reduce(
+    (total, customer) =>
+      total + customer.totalSpent,
+    0
   )
 })
 
@@ -110,21 +142,6 @@ const formatPrice = (price) => {
 
 
 /* =========================
-   DELETE CUSTOMER
-========================= */
-
-const deleteCustomer = (id) => {
-  customers.value = customers.value.filter(
-    customer => customer.id !== id
-  )
-
-  if (selectedCustomer.value?.id === id) {
-    closeDetail()
-  }
-}
-
-
-/* =========================
    INITIAL
 ========================= */
 
@@ -134,7 +151,7 @@ const getInitial = (name) => {
 
 
 /* =========================
-   LIHAT DETAIL PELANGGAN
+   LIHAT DETAIL HISTORY
 ========================= */
 
 const viewCustomer = (customer) => {
@@ -260,10 +277,10 @@ const handleModalBackground = (event) => {
         </router-link>
 
 
-        <!-- PELANGGAN -->
+        <!-- HISTORY PELANGGAN -->
 
         <router-link
-          to="/pelanggan"
+          to="/history-pelanggan"
           class="menu-item active"
           @click="showMenu = false"
         >
@@ -273,7 +290,7 @@ const handleModalBackground = (event) => {
           </span>
 
           <span>
-            Pelanggan
+            History Pelanggan
           </span>
 
         </router-link>
@@ -394,7 +411,7 @@ const handleModalBackground = (event) => {
           </span>
 
           <h1>
-            Pelanggan
+            History Pelanggan
           </h1>
 
         </div>
@@ -451,11 +468,11 @@ const handleModalBackground = (event) => {
             </span>
 
             <h2>
-              Kelola Pelanggan
+              History Pelanggan
             </h2>
 
             <p>
-              Lihat dan kelola data pelanggan toko.
+              Lihat riwayat pelanggan yang pernah melakukan pembelian di toko.
             </p>
 
           </div>
@@ -491,11 +508,42 @@ const handleModalBackground = (event) => {
             </p>
 
             <h3>
-              {{ customers.length }}
+              {{ customerHistory.length }}
             </h3>
 
             <span class="stat-footer">
-              pelanggan terdaftar
+              pelanggan yang pernah membeli
+            </span>
+
+          </div>
+
+
+          <!-- TOTAL TRANSAKSI -->
+
+          <div class="stat-card">
+
+            <div class="stat-top">
+
+              <div class="stat-icon green">
+                🛍
+              </div>
+
+              <span class="stat-badge">
+                Transaksi
+              </span>
+
+            </div>
+
+            <p class="stat-label">
+              Total Transaksi
+            </p>
+
+            <h3>
+              {{ totalTransactions }}
+            </h3>
+
+            <span class="stat-footer">
+              transaksi dari semua pelanggan
             </span>
 
           </div>
@@ -522,21 +570,11 @@ const handleModalBackground = (event) => {
             </p>
 
             <h3>
-
-              Rp {{
-                formatPrice(
-                  customers.reduce(
-                    (total, customer) =>
-                      total + customer.totalSpent,
-                    0
-                  )
-                )
-              }}
-
+              Rp {{ formatPrice(totalSpent) }}
             </h3>
 
             <span class="stat-footer">
-              dari semua pelanggan
+              dari seluruh transaksi
             </span>
 
           </div>
@@ -559,11 +597,11 @@ const handleModalBackground = (event) => {
             <div>
 
               <h2>
-                Semua Pelanggan
+                Riwayat Pelanggan
               </h2>
 
               <p>
-                Daftar pelanggan yang terdaftar di toko
+                Daftar pelanggan yang pernah melakukan pembelian
               </p>
 
             </div>
@@ -612,6 +650,10 @@ const handleModalBackground = (event) => {
               </span>
 
               <span>
+                TRANSAKSI
+              </span>
+
+              <span>
                 TOTAL BELANJA
               </span>
 
@@ -656,7 +698,7 @@ const handleModalBackground = (event) => {
                   </strong>
 
                   <span>
-                    ID #CUST-00{{ customer.id }}
+                    ID #HIST-00{{ customer.id }}
                   </span>
 
                 </div>
@@ -669,12 +711,23 @@ const handleModalBackground = (event) => {
               <div class="customer-cell contact-cell">
 
                 <strong>
-                  {{ customer.email }}
+                  {{ customer.phone }}
                 </strong>
 
                 <span>
-                  {{ customer.phone }}
+                  {{ customer.address }}
                 </span>
+
+              </div>
+
+
+              <!-- TRANSAKSI -->
+
+              <div class="customer-cell transaction-cell">
+
+                <strong class="transaction-count">
+                  {{ customer.totalTransaction }}x
+                </strong>
 
               </div>
 
@@ -694,25 +747,12 @@ const handleModalBackground = (event) => {
 
               <div class="customer-cell action-cell">
 
-                <!-- LIHAT -->
-
                 <button
                   class="view-button"
-                  title="Lihat pelanggan"
+                  title="Lihat history pelanggan"
                   @click="viewCustomer(customer)"
                 >
                   👁
-                </button>
-
-
-                <!-- HAPUS -->
-
-                <button
-                  class="delete-button"
-                  title="Hapus pelanggan"
-                  @click="deleteCustomer(customer.id)"
-                >
-                  ×
                 </button>
 
               </div>
@@ -736,7 +776,7 @@ const handleModalBackground = (event) => {
               </h3>
 
               <p>
-                Coba gunakan nama atau data pelanggan lain.
+                Coba gunakan nama, nomor telepon, atau alamat lain.
               </p>
 
             </div>
@@ -768,7 +808,7 @@ const handleModalBackground = (event) => {
 
 
     <!-- =================================================
-         MODAL DETAIL PELANGGAN
+         MODAL DETAIL HISTORY
     ================================================== -->
 
     <div
@@ -787,11 +827,11 @@ const handleModalBackground = (event) => {
           <div>
 
             <span class="modal-label">
-              CUSTOMER DETAIL
+              CUSTOMER HISTORY
             </span>
 
             <h2>
-              Detail Pelanggan
+              Detail History
             </h2>
 
           </div>
@@ -837,7 +877,7 @@ const handleModalBackground = (event) => {
             </h3>
 
             <span>
-              ID #CUST-00{{ selectedCustomer.id }}
+              ID #HIST-00{{ selectedCustomer.id }}
             </span>
 
           </div>
@@ -848,21 +888,6 @@ const handleModalBackground = (event) => {
         <!-- INFORMATION -->
 
         <div class="detail-grid">
-
-
-          <!-- EMAIL -->
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              EMAIL
-            </span>
-
-            <strong>
-              {{ selectedCustomer.email }}
-            </strong>
-
-          </div>
 
 
           <!-- PHONE -->
@@ -880,16 +905,46 @@ const handleModalBackground = (event) => {
           </div>
 
 
-          <!-- JOINED -->
+          <!-- TRANSAKSI -->
 
           <div class="detail-item">
 
             <span class="detail-label">
-              BERGABUNG
+              JUMLAH TRANSAKSI
             </span>
 
             <strong>
-              {{ selectedCustomer.joined }}
+              {{ selectedCustomer.totalTransaction }} transaksi
+            </strong>
+
+          </div>
+
+
+          <!-- ADDRESS -->
+
+          <div class="detail-item detail-full">
+
+            <span class="detail-label">
+              ALAMAT
+            </span>
+
+            <strong>
+              {{ selectedCustomer.address }}
+            </strong>
+
+          </div>
+
+
+          <!-- LAST PURCHASE -->
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              PEMBELIAN TERAKHIR
+            </span>
+
+            <strong>
+              {{ selectedCustomer.lastPurchase }}
             </strong>
 
           </div>
@@ -897,7 +952,7 @@ const handleModalBackground = (event) => {
 
           <!-- TOTAL SPENT -->
 
-          <div class="detail-item detail-full">
+          <div class="detail-item">
 
             <span class="detail-label">
               TOTAL BELANJA
@@ -1047,7 +1102,7 @@ const handleModalBackground = (event) => {
 .menu-item {
   width: 100%;
 
-  height: 52px;
+  min-height: 52px;
 
   display: flex;
 
@@ -1087,6 +1142,8 @@ const handleModalBackground = (event) => {
 
 .menu-icon {
   width: 25px;
+
+  flex-shrink: 0;
 
   display: flex;
 
@@ -1226,6 +1283,8 @@ const handleModalBackground = (event) => {
   flex-direction: column;
 
   gap: 4px;
+
+  min-width: 0;
 }
 
 .small-title {
@@ -1417,7 +1476,7 @@ const handleModalBackground = (event) => {
   display: grid;
 
   grid-template-columns:
-    repeat(2, 1fr);
+    repeat(3, 1fr);
 
   gap: 20px;
 
@@ -1644,10 +1703,11 @@ const handleModalBackground = (event) => {
   display: grid;
 
   grid-template-columns:
-    2fr
     1.7fr
+    1.7fr
+    1.2fr
     1.25fr
-    0.8fr;
+    0.6fr;
 
   align-items: center;
 
@@ -1795,9 +1855,30 @@ const handleModalBackground = (event) => {
 }
 
 .contact-cell span {
+  max-width: 100%;
+
   font-size: 9px;
 
   color: #aaa;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================
+   TRANSACTION
+========================= */
+
+.transaction-count {
+  font-size: 11px;
+
+  color: #6b7e61;
+
+  white-space: nowrap;
 }
 
 
@@ -1822,40 +1903,27 @@ const handleModalBackground = (event) => {
   gap: 7px;
 }
 
-.view-button,
-.delete-button {
+.view-button {
   width: 32px;
   height: 32px;
 
-  border-radius: 9px;
-
-  cursor: pointer;
-
-  font-size: 13px;
-}
-
-.view-button {
   border: 1px solid #dfe5d9;
+
+  border-radius: 9px;
 
   background: #f1f4eb;
 
   color: #718365;
-}
 
-.delete-button {
-  border: 1px solid #f0d7d4;
+  cursor: pointer;
 
-  background: #fff1ef;
+  font-size: 13px;
 
-  color: #c7847f;
+  transition: 0.2s;
 }
 
 .view-button:hover {
   background: #e4ebdc;
-}
-
-.delete-button:hover {
-  background: #fce2df;
 }
 
 
@@ -1914,7 +1982,7 @@ const handleModalBackground = (event) => {
 
 
 /* =================================================
-   MODAL DETAIL PELANGGAN
+   MODAL DETAIL HISTORY
 ================================================= */
 
 .modal-overlay {
@@ -2271,7 +2339,7 @@ const handleModalBackground = (event) => {
 
   .stats-grid {
     grid-template-columns:
-      repeat(2, 1fr);
+      repeat(3, 1fr);
   }
 
   .customer-table {
@@ -2280,7 +2348,7 @@ const handleModalBackground = (event) => {
 
   .table-head,
   .customer-row {
-    min-width: 700px;
+    min-width: 800px;
   }
 
 }
@@ -2370,7 +2438,7 @@ const handleModalBackground = (event) => {
   .menu-item {
     width: 100%;
 
-    height: 50px;
+    min-height: 50px;
 
     padding: 0 16px;
 
@@ -2441,6 +2509,10 @@ const handleModalBackground = (event) => {
     font-size: 25px;
 
     white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
   }
 
   .topbar-right {
@@ -2539,10 +2611,11 @@ const handleModalBackground = (event) => {
     min-width: 0;
 
     grid-template-columns:
-      1.7fr
-      1.3fr
+      1.5fr
+      1.2fr
+      0.9fr
       1fr
-      0.7fr;
+      0.55fr;
 
     column-gap: 6px;
 
@@ -2584,20 +2657,19 @@ const handleModalBackground = (event) => {
     font-size: 7px;
   }
 
+  .transaction-count {
+    font-size: 8px;
+  }
+
   .total-price {
     font-size: 8px;
   }
 
-  .view-button,
-  .delete-button {
+  .view-button {
     width: 27px;
     height: 27px;
 
     font-size: 11px;
-  }
-
-  .action-cell {
-    gap: 3px;
   }
 
 
@@ -2666,7 +2738,7 @@ const handleModalBackground = (event) => {
   }
 
   .page-heading h1 {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .small-title {
@@ -2788,9 +2860,12 @@ const handleModalBackground = (event) => {
 
   .contact-cell span {
     font-size: 9px;
+
+    white-space: normal;
   }
 
-  /* TOTAL BELANJA */
+
+  /* TRANSAKSI */
 
   .customer-cell:nth-child(3) {
     width: 100%;
@@ -2801,6 +2876,29 @@ const handleModalBackground = (event) => {
   }
 
   .customer-cell:nth-child(3)::before {
+    content: "Jumlah Transaksi";
+
+    font-size: 10px;
+
+    color: #999;
+  }
+
+  .transaction-count {
+    font-size: 10px;
+  }
+
+
+  /* TOTAL BELANJA */
+
+  .customer-cell:nth-child(4) {
+    width: 100%;
+
+    justify-content: space-between;
+
+    padding-left: 52px;
+  }
+
+  .customer-cell:nth-child(4)::before {
     content: "Total Belanja";
 
     font-size: 10px;
@@ -2812,6 +2910,7 @@ const handleModalBackground = (event) => {
     font-size: 10px;
   }
 
+
   /* ACTION */
 
   .action-cell {
@@ -2822,8 +2921,7 @@ const handleModalBackground = (event) => {
     gap: 6px;
   }
 
-  .view-button,
-  .delete-button {
+  .view-button {
     width: 34px;
     height: 34px;
   }

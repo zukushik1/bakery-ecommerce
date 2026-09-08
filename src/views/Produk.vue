@@ -1,45 +1,70 @@
-<script setup>
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+<!-- Produk.vue -->
 
-import brownies from '../assets/images/brownies.jpg'
-import strawberryCake from '../assets/images/strawberry-cake.jpg'
-import matchaCupcake from '../assets/images/matcha-cupcake.jpg'
-import oatmealCookies from '../assets/images/oatmeal-cookies.jpg'
-import chocolateCake from '../assets/images/chocolate-cake.jpg'
-import redVelvetCake from '../assets/images/red-velvet-cake.jpg'
-import tiramisuCake from '../assets/images/tiramisu-cake.jpg'
-import matchaCake from '../assets/images/matcha-cake.jpg'
-import cheeseCake from '../assets/images/cheese-cake.jpg'
-import blackForestCake from '../assets/images/black-forest-cake.jpg'
-import caramelCake from '../assets/images/caramel-cake.jpg'
-import fruitCake from '../assets/images/fruit-cake.jpg'
-import bananaBread from '../assets/images/banana-bread.jpg'
-import carrotCake from '../assets/images/carrot-cake.jpg'
-import blueberryTart from '../assets/images/blueberry-tart.jpg'
-import lemonCake from '../assets/images/lemon-cake.jpg'
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '../api/axios'
 
 const router = useRouter()
+
+/* =========================
+   STATE
+========================= */
 
 const showMenu = ref(false)
 const showAddForm = ref(false)
 const searchQuery = ref('')
 
-// PAGINATION
+const products = ref([])
+
+const loading = ref(false)
+const saving = ref(false)
+const deleting = ref(false)
+
+const errorMessage = ref('')
+const successMessage = ref('')
+
+const isEditMode = ref(false)
+const editingProductId = ref(null)
+
+/* =========================
+   FORM
+========================= */
+
+const form = ref({
+  nama_produk: '',
+  deskripsi: '',
+  harga: '',
+  stok: '',
+  kategori: '',
+  gambar: null
+})
+
+/* =========================
+   PAGINATION
+========================= */
+
 const currentPage = ref(1)
 const itemsPerPage = 5
 
-const totalPages = computed(() =>
-  Math.ceil(filteredProducts.value.length / itemsPerPage)
-)
+const totalPages = computed(() => {
+  return Math.ceil(filteredProducts.value.length / itemsPerPage)
+})
 
 const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
-  return filteredProducts.value.slice(start, start + itemsPerPage)
+
+  return filteredProducts.value.slice(
+    start,
+    start + itemsPerPage
+  )
 })
 
 const startItem = computed(() => {
-  if (filteredProducts.value.length === 0) return 0
+  if (filteredProducts.value.length === 0) {
+    return 0
+  }
+
   return (currentPage.value - 1) * itemsPerPage + 1
 })
 
@@ -68,167 +93,75 @@ const nextPage = () => {
   }
 }
 
-const logout = () => {
-  router.push('/login')
+/* =========================
+   IMAGE URL
+========================= */
+
+const getImageUrl = (image) => {
+  if (!image) {
+    return ''
+  }
+
+  // Backend kadang mengembalikan localhost:8081.
+  // Karena frontend menggunakan IP laptop backend,
+  // kita ubah localhost menjadi IP backend.
+  return image.replace(
+    'http://localhost:8081',
+    'http://192.168.69.1:8081'
+  )
 }
 
 /* =========================
-   16 PRODUK
+   GET PRODUK
 ========================= */
 
-const products = ref([
-  {
-    id: 1,
-    name: 'Brownies',
-    category: 'Brownies',
-    price: 35000,
-    stock: 18,
-    sold: 42,
-    image: brownies
-  },
-  {
-    id: 2,
-    name: 'Strawberry Cake',
-    category: 'Cake',
-    price: 80000,
-    stock: 12,
-    sold: 48,
-    image: strawberryCake
-  },
-  {
-    id: 3,
-    name: 'Matcha Cupcake',
-    category: 'Cupcake',
-    price: 25000,
-    stock: 15,
-    sold: 36,
-    image: matchaCupcake
-  },
-  {
-    id: 4,
-    name: 'Oatmeal Cookies',
-    category: 'Cookies',
-    price: 30000,
-    stock: 25,
-    sold: 31,
-    image: oatmealCookies
-  },
-  {
-    id: 5,
-    name: 'Chocolate Cake',
-    category: 'Cake',
-    price: 70000,
-    stock: 10,
-    sold: 29,
-    image: chocolateCake
-  },
-  {
-    id: 6,
-    name: 'Red Velvet Cake',
-    category: 'Cake',
-    price: 75000,
-    stock: 8,
-    sold: 27,
-    image: redVelvetCake
-  },
-  {
-    id: 7,
-    name: 'Tiramisu Cake',
-    category: 'Cake',
-    price: 75000,
-    stock: 20,
-    sold: 25,
-    image: tiramisuCake
-  },
-  {
-    id: 8,
-    name: 'Matcha Cake',
-    category: 'Cake',
-    price: 65000,
-    stock: 17,
-    sold: 23,
-    image: matchaCake
-  },
-  {
-    id: 9,
-    name: 'Cheese Cake',
-    category: 'Cake',
-    price: 65000,
-    stock: 22,
-    sold: 21,
-    image: cheeseCake
-  },
-  {
-    id: 10,
-    name: 'Black Forest Cake',
-    category: 'Cake',
-    price: 70000,
-    stock: 14,
-    sold: 19,
-    image: blackForestCake
-  },
-  {
-    id: 11,
-    name: 'Caramel Cake',
-    category: 'Cake',
-    price: 65000,
-    stock: 9,
-    sold: 18,
-    image: caramelCake
-  },
-  {
-    id: 12,
-    name: 'Fruit Cake',
-    category: 'Cake',
-    price: 60000,
-    stock: 11,
-    sold: 16,
-    image: fruitCake
-  },
-  {
-    id: 13,
-    name: 'Banana Cake',
-    category: 'Cake',
-    price: 45000,
-    stock: 13,
-    sold: 15,
-    image: bananaBread
-  },
-  {
-    id: 14,
-    name: 'Carrot Cake',
-    category: 'Cake',
-    price: 60000,
-    stock: 7,
-    sold: 13,
-    image: carrotCake
-  },
-  {
-    id: 15,
-    name: 'Blueberry Tart',
-    category: 'Tart',
-    price: 55000,
-    stock: 6,
-    sold: 11,
-    image: blueberryTart
-  },
-  {
-    id: 16,
-    name: 'Lemon Cake',
-    category: 'Cake',
-    price: 55000,
-    stock: 10,
-    sold: 9,
-    image: lemonCake
+const fetchProducts = async () => {
+  loading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await api.get('/produk')
+
+    const data = response.data?.data || []
+
+    products.value = data.map((product) => ({
+      id: product.id_produk,
+      name: product.nama_produk || '-',
+      description: product.deskripsi || '',
+      category: product.kategori || 'Tanpa Kategori',
+      price: Number(product.harga) || 0,
+      stock: Number(product.stok) || 0,
+      sold: Number(product.terjual) || 0,
+      image: getImageUrl(product.gambar)
+    }))
+
+  } catch (error) {
+    console.error('Gagal mengambil produk:', error)
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      'Gagal mengambil data produk dari server.'
+  } finally {
+    loading.value = false
   }
-])
+}
+
+/* =========================
+   ON MOUNTED
+========================= */
+
+onMounted(() => {
+  fetchProducts()
+})
 
 /* =========================
    SEARCH
 ========================= */
 
 const filteredProducts = computed(() => {
-  const keyword = searchQuery.value.toLowerCase().trim()
+  const keyword = searchQuery.value
+    .toLowerCase()
+    .trim()
 
   if (!keyword) {
     return products.value
@@ -236,7 +169,8 @@ const filteredProducts = computed(() => {
 
   return products.value.filter(product =>
     product.name.toLowerCase().includes(keyword) ||
-    product.category.toLowerCase().includes(keyword)
+    product.category.toLowerCase().includes(keyword) ||
+    product.description.toLowerCase().includes(keyword)
   )
 })
 
@@ -244,6 +178,10 @@ watch(filteredProducts, () => {
   if (currentPage.value > totalPages.value) {
     currentPage.value = totalPages.value || 1
   }
+})
+
+watch(searchQuery, () => {
+  currentPage.value = 1
 })
 
 /* =========================
@@ -265,9 +203,11 @@ const totalSold = computed(() => {
 })
 
 const totalCategories = computed(() => {
-  return new Set(
-    products.value.map(product => product.category)
-  ).size
+  const categories = products.value
+    .map(product => product.category)
+    .filter(category => category && category !== 'Tanpa Kategori')
+
+  return new Set(categories).size
 })
 
 /* =========================
@@ -279,19 +219,332 @@ const formatPrice = (price) => {
 }
 
 /* =========================
-   DELETE
+   RESET FORM
 ========================= */
 
-const deleteProduct = (id) => {
-  products.value = products.value.filter(
-    product => product.id !== id
+const resetForm = () => {
+  form.value = {
+    nama_produk: '',
+    deskripsi: '',
+    harga: '',
+    stok: '',
+    kategori: '',
+    gambar: null
+  }
+
+  editingProductId.value = null
+  isEditMode.value = false
+}
+
+/* =========================
+   OPEN ADD FORM
+========================= */
+
+const openAddForm = () => {
+  resetForm()
+
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  showAddForm.value = true
+}
+
+/* =========================
+   CLOSE FORM
+========================= */
+
+const closeForm = () => {
+  showAddForm.value = false
+  resetForm()
+
+  errorMessage.value = ''
+}
+
+/* =========================
+   FILE CHANGE
+========================= */
+
+const handleFileChange = (event) => {
+  const file = event.target.files?.[0]
+
+  if (!file) {
+    form.value.gambar = null
+    return
+  }
+
+  form.value.gambar = file
+}
+
+/* =========================
+   ADD PRODUCT
+========================= */
+
+const createProduct = async () => {
+  if (!form.value.nama_produk.trim()) {
+    errorMessage.value = 'Nama produk wajib diisi.'
+    return
+  }
+
+  if (!form.value.harga || Number(form.value.harga) < 0) {
+    errorMessage.value = 'Harga produk tidak valid.'
+    return
+  }
+
+  if (
+    form.value.stok === '' ||
+    Number(form.value.stok) < 0
+  ) {
+    errorMessage.value = 'Stok produk tidak valid.'
+    return
+  }
+
+  saving.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    const formData = new FormData()
+
+    formData.append(
+      'nama_produk',
+      form.value.nama_produk
+    )
+
+    formData.append(
+      'deskripsi',
+      form.value.deskripsi
+    )
+
+    formData.append(
+      'harga',
+      String(form.value.harga)
+    )
+
+    formData.append(
+      'stok',
+      String(form.value.stok)
+    )
+
+    formData.append(
+      'kategori',
+      form.value.kategori
+    )
+
+    if (form.value.gambar) {
+      formData.append(
+        'gambar',
+        form.value.gambar
+      )
+    }
+
+    await api.post('/produk', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    successMessage.value =
+      'Produk berhasil ditambahkan.'
+
+    showAddForm.value = false
+    resetForm()
+
+    await fetchProducts()
+
+  } catch (error) {
+    console.error('Gagal menambah produk:', error)
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      'Gagal menambahkan produk.'
+  } finally {
+    saving.value = false
+  }
+}
+
+/* =========================
+   OPEN EDIT
+========================= */
+
+const editProduct = (product) => {
+  isEditMode.value = true
+  editingProductId.value = product.id
+
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  form.value = {
+    nama_produk: product.name,
+    deskripsi: product.description,
+    harga: product.price,
+    stok: product.stock,
+    kategori:
+      product.category === 'Tanpa Kategori'
+        ? ''
+        : product.category,
+    gambar: null
+  }
+
+  showAddForm.value = true
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+}
+
+/* =========================
+   UPDATE PRODUCT
+========================= */
+
+const updateProduct = async () => {
+  if (!editingProductId.value) {
+    return
+  }
+
+  if (!form.value.nama_produk.trim()) {
+    errorMessage.value = 'Nama produk wajib diisi.'
+    return
+  }
+
+  if (!form.value.harga || Number(form.value.harga) < 0) {
+    errorMessage.value = 'Harga produk tidak valid.'
+    return
+  }
+
+  if (
+    form.value.stok === '' ||
+    Number(form.value.stok) < 0
+  ) {
+    errorMessage.value = 'Stok produk tidak valid.'
+    return
+  }
+
+  saving.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    /*
+      Backend UpdateProduk menggunakan:
+      c.ShouldBindJSON(&input)
+
+      Jadi PUT harus menggunakan JSON,
+      bukan FormData.
+    */
+
+    const payload = {
+      nama_produk: form.value.nama_produk,
+      deskripsi: form.value.deskripsi,
+      harga: Number(form.value.harga),
+      stok: Number(form.value.stok),
+      kategori: form.value.kategori
+    }
+
+    /*
+      Kalau produk sebelumnya punya gambar,
+      pertahankan URL gambar tersebut.
+    */
+    const oldProduct = products.value.find(
+      product => product.id === editingProductId.value
+    )
+
+    if (oldProduct?.image) {
+      payload.gambar = oldProduct.image
+    }
+
+    await api.put(
+      `/produk/${editingProductId.value}`,
+      payload
+    )
+
+    successMessage.value =
+      'Produk berhasil diperbarui.'
+
+    showAddForm.value = false
+    resetForm()
+
+    await fetchProducts()
+
+  } catch (error) {
+    console.error('Gagal update produk:', error)
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      'Gagal memperbarui produk.'
+  } finally {
+    saving.value = false
+  }
+}
+
+/* =========================
+   SAVE FORM
+========================= */
+
+const saveProduct = async () => {
+  if (isEditMode.value) {
+    await updateProduct()
+  } else {
+    await createProduct()
+  }
+}
+
+/* =========================
+   DELETE PRODUCT
+========================= */
+
+const deleteProduct = async (id) => {
+  const product = products.value.find(
+    item => item.id === id
   )
+
+  const productName =
+    product?.name || 'produk ini'
+
+  const confirmed = window.confirm(
+    `Yakin ingin menghapus ${productName}?`
+  )
+
+  if (!confirmed) {
+    return
+  }
+
+  deleting.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    await api.delete(`/produk/${id}`)
+
+    successMessage.value =
+      'Produk berhasil dihapus.'
+
+    await fetchProducts()
+
+  } catch (error) {
+    console.error('Gagal menghapus produk:', error)
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      'Gagal menghapus produk.'
+  } finally {
+    deleting.value = false
+  }
+}
+
+/* =========================
+   LOGOUT
+========================= */
+
+const logout = () => {
+  localStorage.removeItem('token')
+  router.push('/login')
 }
 
 /* =========================
    MENU
 ========================= */
- 
+
 const closeMenu = () => {
   showMenu.value = false
 }
@@ -301,9 +554,7 @@ const closeMenu = () => {
 <template>
   <div class="dashboard-page">
 
-    <!-- =========================
-         MOBILE OVERLAY
-    ========================== -->
+    <!-- MOBILE OVERLAY -->
 
     <div
       v-if="showMenu"
@@ -312,9 +563,7 @@ const closeMenu = () => {
     ></div>
 
 
-    <!-- =========================
-         SIDEBAR
-    ========================== -->
+    <!-- SIDEBAR -->
 
     <aside
       class="sidebar"
@@ -385,15 +634,15 @@ const closeMenu = () => {
         </router-link>
 
 
-        <!-- PELANGGAN -->
+        <!-- HISTORY PELANGGAN -->
 
         <router-link
-          to="/pelanggan"
+          to="/history-pelanggan"
           class="menu-item"
           @click="closeMenu"
         >
           <span class="menu-icon">♙</span>
-          <span>Pelanggan</span>
+          <span>History Pelanggan</span>
         </router-link>
 
 
@@ -454,20 +703,14 @@ const closeMenu = () => {
     </aside>
 
 
-    <!-- =========================
-         MAIN
-    ========================== -->
+    <!-- MAIN -->
 
     <main class="main-content">
 
 
-      <!-- =========================
-           TOPBAR
-      ========================== -->
+      <!-- TOPBAR -->
 
       <header class="topbar">
-
-        <!-- HAMBURGER -->
 
         <button
           class="hamburger"
@@ -524,11 +767,41 @@ const closeMenu = () => {
       </header>
 
 
-      <!-- =========================
-           CONTENT
-      ========================== -->
+      <!-- CONTENT -->
 
       <section class="content">
+
+
+        <!-- NOTIFICATION -->
+
+        <div
+          v-if="successMessage"
+          class="notification success-notification"
+        >
+          <span>✓</span>
+          {{ successMessage }}
+
+          <button
+            @click="successMessage = ''"
+          >
+            ×
+          </button>
+        </div>
+
+
+        <div
+          v-if="errorMessage"
+          class="notification error-notification"
+        >
+          <span>!</span>
+          {{ errorMessage }}
+
+          <button
+            @click="errorMessage = ''"
+          >
+            ×
+          </button>
+        </div>
 
 
         <!-- PAGE INTRO -->
@@ -554,7 +827,7 @@ const closeMenu = () => {
 
           <button
             class="add-button"
-            @click="showAddForm = !showAddForm"
+            @click="openAddForm"
           >
             <span>＋</span>
             Tambah Produk
@@ -563,12 +836,9 @@ const closeMenu = () => {
         </div>
 
 
-        <!-- =========================
-             QUICK STATS
-        ========================== -->
+        <!-- QUICK STATS -->
 
         <div class="stats-grid">
-
 
           <!-- TOTAL PRODUK -->
 
@@ -680,7 +950,7 @@ const closeMenu = () => {
             </div>
 
             <p class="stat-label">
-              Kategori Produk
+              Kategori
             </p>
 
             <h3>
@@ -696,9 +966,7 @@ const closeMenu = () => {
         </div>
 
 
-        <!-- =========================
-             ADD PRODUCT FORM
-        ========================== -->
+        <!-- ADD / EDIT PRODUCT FORM -->
 
         <div
           v-if="showAddForm"
@@ -710,18 +978,18 @@ const closeMenu = () => {
             <div>
 
               <span>
-                PRODUK BARU
+                {{ isEditMode ? 'EDIT PRODUK' : 'PRODUK BARU' }}
               </span>
 
               <h2>
-                Tambah Produk
+                {{ isEditMode ? 'Edit Produk' : 'Tambah Produk' }}
               </h2>
 
             </div>
 
             <button
               class="close-button"
-              @click="showAddForm = false"
+              @click="closeForm"
             >
               ×
             </button>
@@ -731,6 +999,8 @@ const closeMenu = () => {
 
           <div class="form-grid">
 
+            <!-- NAMA -->
+
             <div class="form-group">
 
               <label>
@@ -738,6 +1008,7 @@ const closeMenu = () => {
               </label>
 
               <input
+                v-model="form.nama_produk"
                 type="text"
                 placeholder="Contoh: Strawberry Cake"
               />
@@ -745,38 +1016,48 @@ const closeMenu = () => {
             </div>
 
 
+            <!-- KATEGORI -->
+
             <div class="form-group">
 
               <label>
                 Kategori
               </label>
 
-              <select>
+              <select
+                v-model="form.kategori"
+              >
 
-                <option>
+                <option value="">
                   Pilih kategori
                 </option>
 
-                <option>
+                <option value="Cake">
                   Cake
                 </option>
 
-                <option>
+                <option value="Brownies">
                   Brownies
                 </option>
 
-                <option>
+                <option value="Cupcake">
                   Cupcake
                 </option>
 
-                <option>
+                <option value="Cookies">
                   Cookies
+                </option>
+
+                <option value="Tart">
+                  Tart
                 </option>
 
               </select>
 
             </div>
 
+
+            <!-- HARGA -->
 
             <div class="form-group">
 
@@ -785,12 +1066,16 @@ const closeMenu = () => {
               </label>
 
               <input
+                v-model="form.harga"
                 type="number"
+                min="0"
                 placeholder="125000"
               />
 
             </div>
 
+
+            <!-- STOK -->
 
             <div class="form-group">
 
@@ -799,9 +1084,67 @@ const closeMenu = () => {
               </label>
 
               <input
+                v-model="form.stok"
                 type="number"
+                min="0"
                 placeholder="10"
               />
+
+            </div>
+
+
+            <!-- DESKRIPSI -->
+
+            <div class="form-group form-full">
+
+              <label>
+                Deskripsi
+              </label>
+
+              <textarea
+                v-model="form.deskripsi"
+                placeholder="Deskripsi produk..."
+              ></textarea>
+
+            </div>
+
+
+            <!-- GAMBAR -->
+
+            <div
+              v-if="!isEditMode"
+              class="form-group form-full"
+            >
+
+              <label>
+                Gambar Produk
+              </label>
+
+              <input
+                type="file"
+                accept="image/*"
+                @change="handleFileChange"
+              />
+
+              <small class="file-info">
+                Pilih gambar produk. Format gambar umum seperti JPG, JPEG, atau PNG.
+              </small>
+
+            </div>
+
+            <div
+              v-else
+              class="form-group form-full"
+            >
+
+              <label>
+                Gambar Produk
+              </label>
+
+              <div class="edit-image-info">
+                Gambar produk saat ini tetap digunakan.
+                Untuk mengganti gambar, backend perlu menyediakan endpoint upload/update gambar.
+              </div>
 
             </div>
 
@@ -812,16 +1155,23 @@ const closeMenu = () => {
 
             <button
               class="cancel-button"
-              @click="showAddForm = false"
+              @click="closeForm"
+              :disabled="saving"
             >
               Batal
             </button>
 
             <button
               class="save-button"
-              @click="showAddForm = false"
+              @click="saveProduct"
+              :disabled="saving"
             >
-              Simpan Produk
+              {{ saving
+                ? 'Menyimpan...'
+                : isEditMode
+                  ? 'Simpan Perubahan'
+                  : 'Simpan Produk'
+              }}
             </button>
 
           </div>
@@ -829,9 +1179,7 @@ const closeMenu = () => {
         </div>
 
 
-        <!-- =========================
-             PRODUCT PANEL
-        ========================== -->
+        <!-- PRODUCT PANEL -->
 
         <div class="product-panel">
 
@@ -874,11 +1222,28 @@ const closeMenu = () => {
           </div>
 
 
-          <!-- =========================
-               PRODUCT TABLE
-          ========================== -->
+          <!-- LOADING -->
 
-          <div class="product-table">
+          <div
+            v-if="loading"
+            class="loading-product"
+          >
+
+            <div class="loading-spinner"></div>
+
+            <p>
+              Mengambil data produk...
+            </p>
+
+          </div>
+
+
+          <!-- PRODUCT TABLE -->
+
+          <div
+            v-else
+            class="product-table"
+          >
 
 
             <!-- TABLE HEAD -->
@@ -911,9 +1276,18 @@ const closeMenu = () => {
                 <div class="product-photo">
 
                   <img
+                    v-if="product.image"
                     :src="product.image"
                     :alt="product.name"
+                    @error="product.image = ''"
                   />
+
+                  <span
+                    v-else
+                    class="image-placeholder"
+                  >
+                    🍰
+                  </span>
 
                 </div>
 
@@ -990,6 +1364,8 @@ const closeMenu = () => {
                 <button
                   class="edit-button"
                   title="Edit produk"
+                  @click="editProduct(product)"
+                  :disabled="saving || deleting"
                 >
                   ✎
                 </button>
@@ -998,6 +1374,7 @@ const closeMenu = () => {
                   class="delete-button"
                   title="Hapus produk"
                   @click="deleteProduct(product.id)"
+                  :disabled="deleting"
                 >
                   ×
                 </button>
@@ -1023,23 +1400,32 @@ const closeMenu = () => {
               </h3>
 
               <p>
-                Tambahkan produk pertama untuk toko lu.
+                {{
+                  searchQuery
+                    ? 'Produk yang lu cari tidak ditemukan.'
+                    : 'Tambahkan produk pertama untuk toko lu.'
+                }}
               </p>
 
             </div>
 
           </div>
 
+
           <!-- PAGINATION -->
+
           <div
-            v-if="filteredProducts.length > 0"
+            v-if="!loading && filteredProducts.length > 0"
             class="pagination-wrapper"
           >
+
             <div class="pagination-info">
-              Menampilkan {{ startItem }}–{{ endItem }} dari {{ filteredProducts.length }} produk
+              Menampilkan {{ startItem }}–{{ endItem }}
+              dari {{ filteredProducts.length }} produk
             </div>
 
             <div class="pagination">
+
               <button
                 class="pagination-button"
                 :disabled="currentPage === 1"
@@ -1067,7 +1453,9 @@ const closeMenu = () => {
               >
                 ›
               </button>
+
             </div>
+
           </div>
 
         </div>
@@ -1097,10 +1485,6 @@ const closeMenu = () => {
 
 <style scoped>
 
-/* =========================
-   RESET
-========================= */
-
 * {
   box-sizing: border-box;
 }
@@ -1115,66 +1499,43 @@ body {
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
-
   display: flex;
-
   background: #faf9f5;
-
   color: #333;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 
-/* =========================
-   SIDEBAR
-========================= */
+/* SIDEBAR */
 
 .sidebar {
   width: 270px;
   min-height: 100vh;
-
   position: fixed;
-
   left: 0;
   top: 0;
-
   display: flex;
   flex-direction: column;
-
   background: #f1f3df;
-
   border-right: 1px solid #e3e6d5;
-
   z-index: 100;
 }
 
 
-/* =========================
-   BRAND
-========================= */
+/* BRAND */
 
 .brand {
   width: 100%;
   height: 125px;
-
   display: flex;
-
   align-items: center;
-
   padding-left: 30px;
-
   border-bottom: 1px solid #e3e6d5;
 }
 
 .brand img {
   width: 185px;
-
   height: auto;
-
   object-fit: contain;
 }
 
@@ -1183,25 +1544,18 @@ body {
 }
 
 
-/* =========================
-   MENU
-========================= */
+/* MENU */
 
 .menu {
   padding: 30px 18px;
-
   flex: 1;
 }
 
 .menu-title {
   margin: 0 0 14px 15px;
-
   font-size: 10px;
-
   font-weight: 700;
-
   letter-spacing: 2px;
-
   color: #98a18e;
 }
 
@@ -1212,172 +1566,115 @@ body {
 .menu-item {
   width: 100%;
   height: 52px;
-
   display: flex;
-
   align-items: center;
-
   gap: 15px;
-
   padding: 0 16px;
-
   margin-bottom: 7px;
-
   border-radius: 13px;
-
   color: #68725f;
-
   text-decoration: none;
-
   font-size: 15px;
-
   transition: 0.2s;
 }
 
 .menu-item:hover {
   background: rgba(255,255,255,0.65);
-
   color: #52664c;
 }
 
 .menu-item.active {
   background: #718667;
-
   color: white;
-
-  box-shadow:
-    0 8px 18px rgba(113,134,103,0.18);
+  box-shadow: 0 8px 18px rgba(113,134,103,0.18);
 }
 
 .menu-icon {
   width: 25px;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   font-size: 18px;
 }
 
 
-/* =========================
-   SIDEBAR BOTTOM
-========================= */
+/* SIDEBAR BOTTOM */
 
 .sidebar-bottom {
   padding: 20px;
-
   border-top: 1px solid #e3e6d5;
 }
 
 .admin-profile {
   display: flex;
-
   align-items: center;
-
   gap: 12px;
-
   margin-bottom: 18px;
 }
 
 .profile-avatar {
   width: 42px;
   height: 42px;
-
   display: flex;
-
   justify-content: center;
   align-items: center;
-
   border-radius: 50%;
-
   background: #ef9999;
-
   color: white;
-
   font-weight: bold;
 }
 
 .profile-info {
   display: flex;
-
   flex-direction: column;
-
   gap: 3px;
 }
 
 .profile-info strong {
   font-size: 14px;
-
   color: #52624d;
 }
 
 .profile-info span {
   font-size: 11px;
-
   color: #92988d;
 }
 
 .logout-button {
   width: 100%;
   height: 44px;
-
   border: 1px solid #ddd;
-
   border-radius: 12px;
-
   background: rgba(255,255,255,0.65);
-
   color: #7c8279;
-
   cursor: pointer;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 9px;
-
   font-size: 13px;
 }
 
 
-/* =========================
-   MAIN
-========================= */
+/* MAIN */
 
 .main-content {
   width: calc(100% - 270px);
-
   min-height: 100vh;
-
   margin-left: 270px;
-
   overflow-x: hidden;
 }
 
 
-/* =========================
-   TOPBAR
-========================= */
+/* TOPBAR */
 
 .topbar {
   height: 125px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   padding: 0 50px;
-
   background: #fffdfb;
-
   border-bottom: 1px solid #eeeeea;
 }
 
@@ -1387,88 +1684,62 @@ body {
 
 .page-heading {
   display: flex;
-
   flex-direction: column;
-
   gap: 4px;
 }
 
 .small-title {
   font-size: 10px;
-
   font-weight: bold;
-
   letter-spacing: 2px;
-
   color: #a0a99a;
 }
 
 .page-heading h1 {
   margin: 0;
-
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 34px;
-
   color: #526b45;
 }
 
 .topbar-right {
   display: flex;
-
   align-items: center;
-
   gap: 25px;
 }
 
 .top-admin {
   display: flex;
-
   align-items: center;
-
   gap: 14px;
 }
 
 .top-avatar {
   width: 40px;
   height: 40px;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
-
   background: #718667;
-
   color: white;
-
   font-weight: bold;
-
   transform: translateX(3px);
 }
 
 .top-admin-info {
   display: flex;
-
   flex-direction: column;
-
   gap: 3px;
 }
 
 .top-admin-info strong {
   font-size: 13px;
-
   color: #505a4d;
 }
 
 .top-admin-info span {
   font-size: 10px;
-
   color: #999;
 }
 
@@ -1477,89 +1748,117 @@ body {
 }
 
 
-/* =========================
-   CONTENT
-========================= */
+/* CONTENT */
 
 .content {
   padding: 40px 50px 30px;
-
   max-width: 100%;
 }
 
 
-/* =========================
-   PAGE INTRO
-========================= */
+/* NOTIFICATION */
+
+.notification {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.notification span:first-child {
+  width: 25px;
+  height: 25px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.notification button {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.success-notification {
+  background: #eaf3e5;
+  border: 1px solid #d6e5ce;
+  color: #61775a;
+}
+
+.success-notification span:first-child {
+  background: #718667;
+  color: white;
+}
+
+.error-notification {
+  background: #fff0ee;
+  border: 1px solid #f1d5d1;
+  color: #a36d68;
+}
+
+.error-notification span:first-child {
+  background: #c7847f;
+  color: white;
+}
+
+
+/* PAGE INTRO */
 
 .page-intro {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   margin-bottom: 25px;
-
   gap: 20px;
 }
 
 .intro-label {
   font-size: 10px;
-
   font-weight: bold;
-
   letter-spacing: 2px;
-
   color: #a0a99a;
 }
 
 .page-intro h2 {
   margin: 7px 0 5px;
-
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 32px;
-
   color: #526b45;
 }
 
 .page-intro p {
   margin: 0;
-
   font-size: 13px;
-
   color: #999;
 }
 
 .add-button {
   height: 50px;
-
   padding: 0 23px;
-
   flex-shrink: 0;
-
   border: none;
-
   border-radius: 15px;
-
   background: #718667;
-
   color: white;
-
   font-size: 14px;
-
   font-weight: 600;
-
   cursor: pointer;
-
   display: flex;
-
   align-items: center;
-
   gap: 9px;
 }
 
@@ -1568,55 +1867,37 @@ body {
 }
 
 
-/* =========================
-   STATS
-========================= */
+/* STATS */
 
 .stats-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, 1fr);
-
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-
   margin-bottom: 25px;
 }
 
 .stat-card {
   padding: 23px;
-
   min-height: 170px;
-
   background: white;
-
   border: 1px solid #eeeeea;
-
   border-radius: 20px;
-
-  box-shadow:
-    0 8px 25px rgba(80,80,60,0.035);
+  box-shadow: 0 8px 25px rgba(80,80,60,0.035);
 }
 
 .stat-top {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
 }
 
 .stat-icon {
   width: 45px;
   height: 45px;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   border-radius: 13px;
-
   font-size: 19px;
 }
 
@@ -1638,316 +1919,293 @@ body {
 
 .stat-badge {
   padding: 5px 9px;
-
   border-radius: 20px;
-
   background: #f5f5f1;
-
   color: #9a9d96;
-
   font-size: 9px;
 }
 
 .stat-label {
   margin: 17px 0 4px;
-
   font-size: 12px;
-
   color: #8d9189;
 }
 
 .stat-card h3 {
   margin: 0;
-
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 28px;
-
   color: #52634b;
 }
 
 .stat-footer {
   display: block;
-
   margin-top: 6px;
-
   font-size: 10px;
-
   color: #b0b1ac;
 }
 
 
-/* =========================
-   ADD PRODUCT
-========================= */
+/* ADD PRODUCT */
 
 .add-product-panel {
   margin-bottom: 25px;
-
   padding: 28px;
-
   background: #fffdfb;
-
   border: 1px solid #eeeeea;
-
   border-radius: 22px;
-
-  box-shadow:
-    0 8px 25px rgba(80,80,60,0.035);
+  box-shadow: 0 8px 25px rgba(80,80,60,0.035);
 }
 
 .form-title {
   display: flex;
-
   justify-content: space-between;
-
   align-items: flex-start;
-
   margin-bottom: 25px;
 }
 
 .form-title span {
   font-size: 9px;
-
   font-weight: bold;
-
   letter-spacing: 2px;
-
   color: #a0a99a;
 }
 
 .form-title h2 {
   margin: 7px 0 0;
-
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 23px;
-
   color: #52634b;
 }
 
 .close-button {
   width: 35px;
   height: 35px;
-
   border: none;
-
   border-radius: 50%;
-
   background: #fce6e4;
-
   color: #a87b77;
-
   font-size: 22px;
-
   cursor: pointer;
 }
 
 .form-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, 1fr);
-
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+}
+
+.form-full {
+  grid-column: 1 / -1;
 }
 
 .form-group {
   display: flex;
-
   flex-direction: column;
-
   gap: 8px;
 }
 
 .form-group label {
   font-size: 12px;
-
   font-weight: 600;
-
   color: #5e6659;
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   width: 100%;
-  height: 48px;
-
   padding: 0 15px;
-
   border: 1px solid #deded9;
-
   border-radius: 12px;
-
   outline: none;
-
   background: white;
-
   color: #555;
-
   font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.form-group input,
+.form-group select {
+  height: 48px;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #718667;
+}
+
+.file-info {
+  font-size: 10px;
+  color: #aaa;
+}
+
+.edit-image-info {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  border: 1px dashed #d9ddd1;
+  border-radius: 12px;
+  background: #f8f9f4;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .form-actions {
   display: flex;
-
   justify-content: flex-end;
-
   gap: 12px;
-
   margin-top: 25px;
 }
 
 .cancel-button,
 .save-button {
   height: 45px;
-
   padding: 0 20px;
-
   border-radius: 12px;
-
   cursor: pointer;
-
   font-size: 13px;
 }
 
 .cancel-button {
   border: 1px solid #ddd;
-
   background: white;
-
   color: #777;
 }
 
 .save-button {
   border: none;
-
   background: #718667;
-
   color: white;
 }
 
+.cancel-button:disabled,
+.save-button:disabled,
+.edit-button:disabled,
+.delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-/* =========================
-   PRODUCT PANEL
-========================= */
+
+/* PRODUCT PANEL */
 
 .product-panel {
   width: 100%;
-
   background: white;
-
   border: 1px solid #eeeeea;
-
   border-radius: 22px;
-
   padding: 25px;
-
-  box-shadow:
-    0 8px 25px rgba(80,80,60,0.035);
+  box-shadow: 0 8px 25px rgba(80,80,60,0.035);
 }
 
 .panel-header {
   display: flex;
-
   align-items: flex-start;
-
   justify-content: space-between;
-
   gap: 20px;
-
   margin-bottom: 20px;
 }
 
 .panel-header h2 {
   margin: 0;
-
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 21px;
-
   color: #52634b;
 }
 
 .panel-header p {
   margin: 5px 0 0;
-
   font-size: 11px;
-
   color: #a0a29d;
 }
 
 .product-tools {
   display: flex;
-
   gap: 10px;
-
   flex-shrink: 0;
 }
 
 .search-box {
   width: 220px;
   height: 40px;
-
   display: flex;
-
   align-items: center;
-
   gap: 8px;
-
   padding: 0 12px;
-
   border: 1px solid #e2e2dd;
-
   border-radius: 11px;
-
   background: #fff;
 }
 
 .search-box span {
   color: #999;
-
   font-size: 19px;
 }
 
 .search-box input {
   width: 100%;
-
   border: none;
-
   outline: none;
-
   font-size: 12px;
 }
 
 
-/* =========================
-   TABLE
-========================= */
+/* LOADING */
+
+.loading-product {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.loading-product p {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.loading-spinner {
+  width: 35px;
+  height: 35px;
+  border: 3px solid #e8ecdf;
+  border-top-color: #718667;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* TABLE */
 
 .product-table {
   width: 100%;
-
   overflow-x: auto;
-
   scrollbar-width: thin;
 }
 
 .table-head,
 .product-row {
   min-width: 900px;
-
   display: grid;
-
   grid-template-columns:
     2.2fr
     1.1fr
@@ -1955,41 +2213,29 @@ body {
     0.9fr
     0.9fr
     0.8fr;
-
   align-items: center;
 }
 
 .table-head {
   min-height: 42px;
-
   padding: 0 15px;
-
   border-radius: 10px;
-
   background: #f7f7f3;
-
   color: #a0a49c;
-
   font-size: 9px;
-
   font-weight: bold;
-
   letter-spacing: 1px;
 }
 
 .product-row {
   min-height: 85px;
-
   padding: 0 15px;
-
   border-bottom: 1px solid #f0f0ed;
 }
 
 .product-cell {
   min-width: 0;
-
   display: flex;
-
   align-items: center;
 }
 
@@ -2000,92 +2246,76 @@ body {
 .product-photo {
   width: 58px;
   height: 58px;
-
   flex-shrink: 0;
-
   overflow: hidden;
-
   border-radius: 15px;
-
   background: #f8eeee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-photo img {
   width: 100%;
   height: 100%;
-
   display: block;
-
   object-fit: cover;
+}
+
+.image-placeholder {
+  font-size: 25px;
 }
 
 .product-name {
   display: flex;
-
   flex-direction: column;
-
   gap: 5px;
-
   min-width: 0;
 }
 
 .product-name strong {
   font-size: 13px;
-
   color: #515c4d;
 }
 
 .product-name span {
   font-size: 9px;
-
   color: #aaa;
 }
 
 .category {
   padding: 6px 10px;
-
   border-radius: 20px;
-
   background: #f1f3e8;
-
   color: #718064;
-
   font-size: 9px;
-
   font-weight: 600;
 }
 
 .price {
   font-size: 12px;
-
   color: #5e6f55;
 }
 
 .stock {
   padding: 6px 9px;
-
   border-radius: 20px;
-
   font-size: 9px;
-
   font-weight: 600;
 }
 
 .good-stock {
   background: #e8f0e3;
-
   color: #6b835f;
 }
 
 .low-stock {
   background: #fff0df;
-
   color: #ad7c4b;
 }
 
 .sold {
   font-size: 10px;
-
   color: #888;
 }
 
@@ -2097,34 +2327,25 @@ body {
 .delete-button {
   width: 32px;
   height: 32px;
-
   border-radius: 9px;
-
   cursor: pointer;
-
   font-size: 14px;
 }
 
 .edit-button {
   border: 1px solid #dfe5d9;
-
   background: #f1f4eb;
-
   color: #718365;
 }
 
 .delete-button {
   border: 1px solid #f0d7d4;
-
   background: #fff1ef;
-
   color: #c7847f;
 }
 
 
-/* =========================
-   PAGINATION
-========================= */
+/* PAGINATION */
 
 .pagination-wrapper {
   display: flex;
@@ -2175,61 +2396,45 @@ body {
   cursor: not-allowed;
 }
 
-/* =========================
-   EMPTY
-========================= */
+
+/* EMPTY */
 
 .empty-product {
   padding: 60px 20px;
-
   text-align: center;
-
   color: #aaa;
 }
 
 .empty-product div {
   font-size: 40px;
-
   margin-bottom: 10px;
 }
 
 .empty-product h3 {
   margin: 0 0 5px;
-
   color: #697362;
-
   font-family: Georgia, serif;
 }
 
 .empty-product p {
   margin: 0;
-
   font-size: 12px;
 }
 
 
-/* =========================
-   FOOTER
-========================= */
+/* FOOTER */
 
 .dashboard-footer {
   display: flex;
-
   justify-content: space-between;
-
   padding: 30px 5px 5px;
-
   color: #aaa;
-
   font-size: 10px;
-
   letter-spacing: 0.3px;
 }
 
 
-/* =========================
-   TABLET
-========================= */
+/* TABLET */
 
 @media (max-width: 1200px) {
 
@@ -2239,7 +2444,6 @@ body {
 
   .main-content {
     width: calc(100% - 230px);
-
     margin-left: 230px;
   }
 
@@ -2252,60 +2456,41 @@ body {
   }
 
   .stats-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
 }
 
 
-/* =========================
-   HAMBURGER / MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 800px) {
 
   .dashboard-page {
     display: block;
-
     width: 100%;
-
     overflow-x: hidden;
   }
 
-
-  /* SIDEBAR */
-
   .sidebar {
     width: 280px;
-
     height: 100vh;
-
     min-height: 100vh;
-
     position: fixed;
-
     left: 0;
     top: 0;
-
     transform: translateX(-100%);
-
     transition: transform 0.25s ease;
-
-    box-shadow:
-      8px 0 30px rgba(60,70,50,0.12);
+    box-shadow: 8px 0 30px rgba(60,70,50,0.12);
   }
 
   .sidebar.sidebar-open {
     transform: translateX(0);
   }
 
-
   .brand {
     height: 85px;
-
     padding: 0 20px;
-
     justify-content: space-between;
   }
 
@@ -2315,36 +2500,25 @@ body {
 
   .close-menu {
     display: flex;
-
     width: 35px;
     height: 35px;
-
     align-items: center;
     justify-content: center;
-
     border: none;
-
     border-radius: 50%;
-
     background: white;
-
     color: #718667;
-
     font-size: 25px;
-
     cursor: pointer;
   }
 
-
   .menu {
     padding: 25px 15px;
-
     overflow-y: auto;
   }
 
   .menu-title {
     display: block;
-
     margin-left: 10px;
   }
 
@@ -2354,101 +2528,66 @@ body {
 
   .menu-item {
     width: 100%;
-
     height: 50px;
-
     margin-bottom: 6px;
-
     padding: 0 15px;
   }
 
   .sidebar-bottom {
     display: block;
-
     padding: 15px;
   }
 
-
-  /* OVERLAY */
-
   .menu-overlay {
     position: fixed;
-
     inset: 0;
-
     background: rgba(0,0,0,0.25);
-
     z-index: 90;
   }
 
-
-  /* MAIN */
-
   .main-content {
     width: 100%;
-
     margin-left: 0;
-
     overflow-x: hidden;
   }
 
-
-  /* HEADER */
-
   .topbar {
     width: 100%;
-
     height: 72px;
-
     padding: 0 18px;
-
     gap: 12px;
   }
 
   .hamburger {
     width: 40px;
     height: 40px;
-
     flex-shrink: 0;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
     justify-content: center;
-
     gap: 5px;
-
     border: 1px solid #e5e5df;
-
     border-radius: 11px;
-
     background: white;
-
     cursor: pointer;
   }
 
   .hamburger span {
     width: 19px;
     height: 2px;
-
     display: block;
-
     border-radius: 5px;
-
     background: #718667;
   }
 
   .page-heading {
     flex: 1;
-
     min-width: 0;
   }
 
   .small-title {
     font-size: 8px;
-
     letter-spacing: 1.5px;
   }
 
@@ -2463,7 +2602,6 @@ body {
   .top-avatar {
     width: 35px;
     height: 35px;
-
     font-size: 13px;
   }
 
@@ -2472,74 +2610,50 @@ body {
     display: none;
   }
 
-
-  /* CONTENT */
-
   .content {
     width: 100%;
-
     padding: 18px 15px 25px;
-
     overflow-x: hidden;
   }
 
-
-  /* INTRO */
-
   .page-intro {
     flex-direction: column;
-
     align-items: stretch;
-
     gap: 15px;
-
     margin-bottom: 20px;
   }
 
   .intro-label {
     font-size: 8px;
-
     letter-spacing: 1.5px;
   }
 
   .page-intro h2 {
     font-size: 27px;
-
     margin: 5px 0;
   }
 
   .page-intro p {
     font-size: 11px;
-
     line-height: 1.5;
   }
 
   .add-button {
     width: 100%;
-
     height: 45px;
-
     justify-content: center;
-
     font-size: 13px;
   }
 
-
-  /* STATS */
-
   .stats-grid {
     grid-template-columns: 1fr;
-
     gap: 12px;
-
     margin-bottom: 18px;
   }
 
   .stat-card {
     min-height: 135px;
-
     padding: 18px;
-
     border-radius: 17px;
   }
 
@@ -2556,24 +2670,22 @@ body {
     font-size: 25px;
   }
 
-
-  /* FORM */
-
   .add-product-panel {
     padding: 18px;
-
     border-radius: 18px;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
-
     gap: 15px;
+  }
+
+  .form-full {
+    grid-column: auto;
   }
 
   .form-actions {
     flex-direction: column;
-
     gap: 8px;
   }
 
@@ -2582,22 +2694,15 @@ body {
     width: 100%;
   }
 
-
-  /* PRODUCT PANEL */
-
   .product-panel {
     width: 100%;
-
     padding: 17px;
-
     border-radius: 18px;
-
     overflow: hidden;
   }
 
   .panel-header {
     flex-direction: column;
-
     gap: 14px;
   }
 
@@ -2611,28 +2716,19 @@ body {
 
   .product-tools {
     width: 100%;
-
     display: flex;
   }
 
   .search-box {
     flex: 1;
-
     width: auto;
-
     min-width: 0;
   }
 
-
-  /* TABLE */
-
   .product-table {
     width: 100%;
-
     max-width: 100%;
-
     overflow-x: auto;
-
     -webkit-overflow-scrolling: touch;
   }
 
@@ -2641,33 +2737,27 @@ body {
     min-width: 760px;
   }
 
-
-  /* FOOTER */
-
   .dashboard-footer {
     flex-direction: column;
-
     gap: 7px;
-
     padding-top: 22px;
-
     text-align: center;
+  }
+
+  .notification {
+    font-size: 11px;
   }
 
 }
 
 
-/* =========================
-   SMALL HP
-========================= */
+/* SMALL HP */
 
 @media (max-width: 500px) {
 
   .topbar {
     height: 64px;
-
     padding: 0 12px;
-
     gap: 9px;
   }
 
@@ -2693,11 +2783,9 @@ body {
     height: 32px;
   }
 
-
   .content {
     padding: 15px 12px 20px;
   }
-
 
   .page-intro h2 {
     font-size: 24px;
@@ -2707,10 +2795,8 @@ body {
     font-size: 10px;
   }
 
-
   .stat-card {
     min-height: 125px;
-
     padding: 16px;
   }
 
@@ -2718,10 +2804,8 @@ body {
     font-size: 23px;
   }
 
-
   .product-panel {
     padding: 14px;
-
     border-radius: 16px;
   }
 
@@ -2732,7 +2816,6 @@ body {
   .search-box {
     height: 37px;
   }
-
 
   .dashboard-footer {
     font-size: 9px;

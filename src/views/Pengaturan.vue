@@ -32,14 +32,21 @@ const closeMenu = () => {
 <template>
   <div class="dashboard-page">
 
-    <!-- MOBILE OVERLAY -->
+    <!-- =========================
+         MOBILE OVERLAY
+    ========================== -->
+
     <div
       v-if="menuOpen"
       class="mobile-overlay"
       @click="closeMenu"
     ></div>
 
-    <!-- SIDEBAR -->
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
     <aside
       class="sidebar"
       :class="{ 'sidebar-open': menuOpen }"
@@ -47,11 +54,14 @@ const closeMenu = () => {
 
       <!-- LOGO -->
       <div class="brand">
+
         <img
           src="../assets/images/logo.webp"
           alt="Jericho & Nesya"
         />
+
       </div>
+
 
       <!-- MENU -->
       <nav class="menu">
@@ -60,58 +70,109 @@ const closeMenu = () => {
           MENU UTAMA
         </p>
 
+
+        <!-- DASHBOARD -->
         <router-link
           to="/dashboard"
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">⌂</span>
-          <span>Dashboard</span>
+
+          <span class="menu-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
         </router-link>
 
+
+        <!-- PRODUK -->
         <router-link
           to="/produk"
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">🍰</span>
-          <span>Produk</span>
+
+          <span class="menu-icon">
+            🍰
+          </span>
+
+          <span>
+            Produk
+          </span>
+
         </router-link>
 
+
+        <!-- PESANAN -->
         <router-link
           to="/pesanan"
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">🛍</span>
-          <span>Pesanan</span>
+
+          <span class="menu-icon">
+            🛍
+          </span>
+
+          <span>
+            Pesanan
+          </span>
+
         </router-link>
 
+
+        <!-- HISTORY PELANGGAN -->
         <router-link
-          to="/pelanggan"
+          to="/history-pelanggan"
           class="menu-item"
           @click="closeMenu"
         >
-          <span class="menu-icon">♙</span>
-          <span>Pelanggan</span>
+
+          <span class="menu-icon">
+            ♙
+          </span>
+
+          <span>
+            History Pelanggan
+          </span>
+
         </router-link>
 
+
+        <!-- MENU LAINNYA -->
         <p class="menu-title second-title">
           LAINNYA
         </p>
 
+
+        <!-- PENGATURAN -->
         <router-link
           to="/pengaturan"
           class="menu-item active"
           @click="closeMenu"
         >
-          <span class="menu-icon">⚙</span>
-          <span>Pengaturan</span>
+
+          <span class="menu-icon">
+            ⚙
+          </span>
+
+          <span>
+            Pengaturan
+          </span>
+
         </router-link>
 
       </nav>
 
-      <!-- SIDEBAR BOTTOM -->
+
+      <!-- =========================
+           SIDEBAR BOTTOM
+      ========================== -->
+
       <div class="sidebar-bottom">
 
         <div class="admin-profile">
@@ -121,40 +182,66 @@ const closeMenu = () => {
           </div>
 
           <div class="profile-info">
-            <strong>Admin</strong>
-            <span>Administrator</span>
+
+            <strong>
+              Admin
+            </strong>
+
+            <span>
+              Administrator
+            </span>
+
           </div>
 
         </div>
 
+
+        <!-- LOGOUT -->
         <button
           class="logout-button"
           @click="logout"
         >
-          <span>↪</span>
+
+          <span>
+            ↪
+          </span>
+
           Logout
+
         </button>
 
       </div>
 
     </aside>
 
-    <!-- MAIN CONTENT -->
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
     <main class="main-content">
 
-      <!-- TOPBAR -->
+
+      <!-- =========================
+           TOPBAR
+      ========================== -->
+
       <header class="topbar">
 
-        <!-- HAMBURGER MOBILE -->
+
+        <!-- HAMBURGER -->
         <button
           class="hamburger"
           @click="menuOpen = !menuOpen"
           aria-label="Buka menu"
         >
+
           <span></span>
           <span></span>
           <span></span>
+
         </button>
+
 
         <!-- PAGE HEADING -->
         <div class="page-heading">
@@ -169,6 +256,7 @@ const closeMenu = () => {
 
         </div>
 
+
         <!-- ADMIN -->
         <div class="top-admin">
 
@@ -177,8 +265,15 @@ const closeMenu = () => {
           </div>
 
           <div class="top-admin-info">
-            <strong>Admin</strong>
-            <span>Administrator</span>
+
+            <strong>
+              Admin
+            </strong>
+
+            <span>
+              Administrator
+            </span>
+
           </div>
 
           <span class="arrow">
@@ -189,8 +284,13 @@ const closeMenu = () => {
 
       </header>
 
-      <!-- CONTENT -->
+
+      <!-- =========================
+           CONTENT
+      ========================== -->
+
       <section class="content">
+
 
         <!-- PAGE INTRO -->
         <div class="page-intro">
@@ -209,7 +309,11 @@ const closeMenu = () => {
 
         </div>
 
-        <!-- SUCCESS MESSAGE -->
+
+        <!-- =========================
+             SUCCESS MESSAGE
+        ========================== -->
+
         <div
           v-if="showSuccess"
           class="success-message"
@@ -220,6 +324,7 @@ const closeMenu = () => {
           </span>
 
           <div>
+
             <strong>
               Pengaturan berhasil disimpan
             </strong>
@@ -227,14 +332,23 @@ const closeMenu = () => {
             <p>
               Perubahan informasi toko sudah tersimpan.
             </p>
+
           </div>
 
         </div>
 
-        <!-- SETTINGS GRID -->
+
+        <!-- =========================
+             SETTINGS GRID
+        ========================== -->
+
         <div class="settings-grid">
 
-          <!-- PROFIL ADMIN -->
+
+          <!-- =========================
+               PROFIL ADMIN
+          ========================== -->
+
           <div class="settings-card">
 
             <div class="settings-header">
@@ -244,6 +358,7 @@ const closeMenu = () => {
               </div>
 
               <div>
+
                 <h2>
                   Profil Admin
                 </h2>
@@ -251,10 +366,13 @@ const closeMenu = () => {
                 <p>
                   Informasi akun administrator.
                 </p>
+
               </div>
 
             </div>
 
+
+            <!-- ADMIN PROFILE -->
             <div class="admin-profile-large">
 
               <div class="large-avatar">
@@ -279,6 +397,8 @@ const closeMenu = () => {
 
             </div>
 
+
+            <!-- STATUS -->
             <div class="info-box">
 
               <span>
@@ -293,7 +413,11 @@ const closeMenu = () => {
 
           </div>
 
-          <!-- INFORMASI TOKO -->
+
+          <!-- =========================
+               INFORMASI TOKO
+          ========================== -->
+
           <div class="settings-card">
 
             <div class="settings-header">
@@ -303,6 +427,7 @@ const closeMenu = () => {
               </div>
 
               <div>
+
                 <h2>
                   Informasi Toko
                 </h2>
@@ -310,9 +435,11 @@ const closeMenu = () => {
                 <p>
                   Informasi dasar toko.
                 </p>
+
               </div>
 
             </div>
+
 
             <!-- NAMA TOKO -->
             <div class="form-group">
@@ -328,6 +455,7 @@ const closeMenu = () => {
 
             </div>
 
+
             <!-- EMAIL -->
             <div class="form-group">
 
@@ -342,6 +470,7 @@ const closeMenu = () => {
 
             </div>
 
+
             <!-- TELEPON -->
             <div class="form-group">
 
@@ -355,6 +484,7 @@ const closeMenu = () => {
               />
 
             </div>
+
 
             <!-- ALAMAT -->
             <div class="form-group">
@@ -374,7 +504,11 @@ const closeMenu = () => {
 
         </div>
 
-        <!-- SAVE BUTTON -->
+
+        <!-- =========================
+             SAVE BUTTON
+        ========================== -->
+
         <div class="save-section">
 
           <p>
@@ -385,13 +519,22 @@ const closeMenu = () => {
             class="save-button"
             @click="saveSettings"
           >
-            <span>✓</span>
+
+            <span>
+              ✓
+            </span>
+
             Simpan Pengaturan
+
           </button>
 
         </div>
 
-        <!-- FOOTER -->
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
         <footer class="dashboard-footer">
 
           <span>
@@ -410,6 +553,7 @@ const closeMenu = () => {
 
   </div>
 </template>
+
 
 <style>
 
@@ -1699,4 +1843,5 @@ body {
   }
 
 }
+
 </style>
