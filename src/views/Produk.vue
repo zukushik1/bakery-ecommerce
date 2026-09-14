@@ -102,13 +102,30 @@ const getImageUrl = (image) => {
     return ''
   }
 
-  // Backend kadang mengembalikan localhost:8081.
-  // Karena frontend menggunakan IP laptop backend,
-  // kita ubah localhost menjadi IP backend.
-  return image.replace(
-    'http://localhost:8081',
-    'http://192.168.69.1:8081'
-  )
+  const BACKEND_URL = 'http://192.168.69.124:8081'
+
+  // Kalau backend mengirim URL localhost
+  if (image.startsWith('http://localhost:8081')) {
+    return image.replace(
+      'http://localhost:8081',
+      BACKEND_URL
+    )
+  }
+
+  // Kalau backend mengirim URL 127.0.0.1
+  if (image.startsWith('http://127.0.0.1:8081')) {
+    return image.replace(
+      'http://127.0.0.1:8081',
+      BACKEND_URL
+    )
+  }
+
+  // Kalau database hanya menyimpan nama/path file
+  if (!image.startsWith('http')) {
+    return `${BACKEND_URL}/uploads/${image.replace(/^\/?uploads\//, '')}`
+  }
+
+  return image
 }
 
 /* =========================
