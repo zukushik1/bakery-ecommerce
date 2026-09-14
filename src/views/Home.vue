@@ -773,7 +773,6 @@
 
         </div>
 
-
         <div class="footer-links">
 
           <h3>Navigasi</h3>
@@ -803,8 +802,33 @@
       </div>
 
 
+      <!-- ================= FOOTER BOTTOM ================= -->
       <div class="footer-bottom">
-        © 2026 Jericho & Nesya. All Rights Reserved.
+
+        <div class="footer-signature">
+
+          <span class="signature-line"></span>
+
+          <span class="signature-dot"></span>
+
+          <span class="signature-text">
+            Jericho & Nesya
+          </span>
+
+          <span class="signature-dot"></span>
+
+          <span class="signature-line"></span>
+
+        </div>
+
+        <p>
+          Raw, Organic & Healthy
+        </p>
+
+        <small>
+          © 2026 Jericho & Nesya. All Rights Reserved.
+        </small>
+
       </div>
 
     </footer>
@@ -1059,7 +1083,6 @@ const selectedQuantity = ref(1)
 
 const activeSection = ref('beranda')
 
-/* TOMBOL LIHAT SEMUA PRODUK */
 const showAllProducts = ref(false)
 
 
@@ -1480,10 +1503,6 @@ onUnmounted(() => {
 
   color: var(--text);
 
-  /*
-    PENTING:
-    Mencegah scroll ke samping.
-  */
   width: 100%;
 
   max-width: 100%;
@@ -1521,11 +1540,6 @@ button {
 
 .navbar {
 
-  /*
-    DIUBAH DARI STICKY MENJADI FIXED
-    Supaya navbar selalu ikut saat scroll.
-  */
-
   position: fixed;
 
   top: 14px;
@@ -1546,7 +1560,6 @@ button {
 }
 
 
-/* Supaya bagian paling atas tidak ketutup navbar */
 main {
 
   padding-top: 102px;
@@ -2946,6 +2959,61 @@ main {
 }
 
 
+/* ================= KENAPA KAMI ================= */
+
+.footer-why {
+
+  flex: 1;
+
+  max-width: 360px;
+
+}
+
+
+.footer-why h3 {
+
+  margin: 0 0 14px;
+
+  font-size: 17px;
+
+  font-weight: 800;
+
+}
+
+
+.footer-why-item {
+
+  margin-bottom: 12px;
+
+}
+
+
+.footer-why-item strong {
+
+  display: block;
+
+  color: #444;
+
+  font-size: 12px;
+
+  margin-bottom: 3px;
+
+}
+
+
+.footer-why-item p {
+
+  margin: 0;
+
+  color: #888;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+}
+
+
 .footer-links {
 
   display: flex;
@@ -2988,21 +3056,109 @@ main {
 }
 
 
+/* =====================================================
+   FOOTER BOTTOM - BARU
+===================================================== */
+
 .footer-bottom {
 
   max-width: 1100px;
 
-  margin: 35px auto 0;
+  margin: 40px auto 0;
 
-  padding-top: 20px;
+  padding-top: 24px;
 
   border-top: 1px solid #eee;
 
   text-align: center;
 
+}
+
+
+/* GARIS + NAMA BRAND */
+
+.footer-signature {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-bottom: 10px;
+
+}
+
+
+.signature-line {
+
+  width: 55px;
+
+  height: 1px;
+
+  background: #dfe5d9;
+
+}
+
+
+.signature-dot {
+
+  width: 5px;
+
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: var(--green);
+
+}
+
+
+.signature-text {
+
+  color: var(--green-dark);
+
+  font-family: Georgia, serif;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+
+}
+
+
+/* TAGLINE */
+
+.footer-bottom p {
+
+  margin: 0 0 7px;
+
   color: #999;
 
+  font-family: Georgia, serif;
+
   font-size: 11px;
+
+  font-style: italic;
+
+}
+
+
+/* COPYRIGHT */
+
+.footer-bottom small {
+
+  display: block;
+
+  color: #aaa;
+
+  font-size: 10px;
+
+  letter-spacing: 0.2px;
 
 }
 
@@ -3609,11 +3765,6 @@ main {
 
 @media (max-width: 700px) {
 
-  /*
-    PENTING UNTUK HP:
-    Memastikan tidak ada scroll horizontal.
-  */
-
   .home-page {
 
     width: 100%;
@@ -4141,6 +4292,45 @@ main {
   }
 
 
+  /* FOOTER BOTTOM */
+
+  .footer-bottom {
+
+    margin-top: 30px;
+
+    padding-top: 20px;
+
+  }
+
+
+  .signature-line {
+
+    width: 35px;
+
+  }
+
+
+  .signature-text {
+
+    font-size: 12px;
+
+  }
+
+
+  .footer-bottom p {
+
+    font-size: 10px;
+
+  }
+
+
+  .footer-bottom small {
+
+    font-size: 9px;
+
+  }
+
+
   /* MODAL */
 
   .product-modal {
@@ -4282,16 +4472,44 @@ main {
 
   }
 
-}
 
+  /* FOOTER BOTTOM */
+
+  .footer-signature {
+
+    gap: 7px;
+
+  }
+
+
+  .signature-line {
+
+    width: 25px;
+
+  }
+
+
+  .signature-text {
+
+    font-size: 11px;
+
+  }
+
+}
 
 
 /* Mencegah scroll horizontal di semua ukuran layar */
+
 :global(html),
 :global(body),
 :global(#app) {
+
   width: 100%;
+
   max-width: 100%;
+
   overflow-x: hidden;
+
 }
+
 </style>
