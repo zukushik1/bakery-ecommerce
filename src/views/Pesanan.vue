@@ -1,232 +1,344 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '../api/axios'
 
 const router = useRouter()
 
 const menuOpen = ref(false)
 const searchQuery = ref('')
-const selectedStatus = ref('Semua')
 
-const orders = ref([
-  {
-    id: 'ORD-00124',
-    customer: 'Rina Amelia',
-    phone: '0812 3456 7890',
-    date: '30 Agustus 2026',
-    items: [
-      {
-        name: 'Brownies',
-        qty: 1,
-        price: 35000
-      },
-      {
-        name: 'Strawberry Cake',
-        qty: 1,
-        price: 80000
-      },
-      {
-        name: 'Matcha Cupcake',
-        qty: 2,
-        price: 25000
-      }
-    ],
-    total: 165000,
-    status: 'Diproses',
-    payment: 'Sudah Dibayar'
-  },
+const orders = ref([])
+const products = ref([])
 
-  {
-    id: 'ORD-00123',
-    customer: 'Dimas Pratama',
-    phone: '0821 4567 8901',
-    date: '30 Agustus 2026',
-    items: [
-      {
-        name: 'Brownies',
-        qty: 1,
-        price: 35000
-      },
-      {
-        name: 'Oatmeal Cookies',
-        qty: 2,
-        price: 30000
-      }
-    ],
-    total: 95000,
-    status: 'Selesai',
-    payment: 'Sudah Dibayar'
-  },
+const loading = ref(false)
+const errorMessage = ref('')
 
-  {
-    id: 'ORD-00122',
-    customer: 'Siti Rahma',
-    phone: '0852 1234 5678',
-    date: '29 Agustus 2026',
-    items: [
-      {
-        name: 'Strawberry Cake',
-        qty: 2,
-        price: 80000
-      },
-      {
-        name: 'Matcha Cupcake',
-        qty: 1,
-        price: 25000
-      }
-    ],
-    total: 185000,
-    status: 'Diproses',
-    payment: 'Sudah Dibayar'
-  },
+const selectedOrder = ref(null)
+const showDetailModal = ref(false)
 
-  {
-    id: 'ORD-00121',
-    customer: 'Fajar Nugraha',
-    phone: '0838 9876 5432',
-    date: '29 Agustus 2026',
-    items: [
-      {
-        name: 'Brownies',
-        qty: 2,
-        price: 35000
-      },
-      {
-        name: 'Strawberry Cake',
-        qty: 1,
-        price: 80000
-      },
-      {
-        name: 'Oatmeal Cookies',
-        qty: 2,
-        price: 30000
-      }
-    ],
-    total: 210000,
-    status: 'Selesai',
-    payment: 'Sudah Dibayar'
-  },
+/* =========================
+   FETCH PRODUK
+========================= */
 
-  {
-    id: 'ORD-00120',
-    customer: 'Nadia Putri',
-    phone: '0813 2233 4455',
-    date: '28 Agustus 2026',
-    items: [
-      {
-        name: 'Matcha Cupcake',
-        qty: 2,
-        price: 25000
-      },
-      {
-        name: 'Oatmeal Cookies',
-        qty: 1,
-        price: 30000
-      }
-    ],
-    total: 80000,
-    status: 'Menunggu',
-    payment: 'Belum Dibayar'
-  },
+const fetchProducts = async () => {
+  try {
+    const response = await api.get('/produk')
 
-  {
-    id: 'ORD-00119',
-    customer: 'Rizky Maulana',
-    phone: '0896 5566 7788',
-    date: '28 Agustus 2026',
-    items: [
-      {
-        name: 'Strawberry Cake',
-        qty: 1,
-        price: 80000
-      },
-      {
-        name: 'Brownies',
-        qty: 1,
-        price: 35000
-      }
-    ],
-    total: 115000,
-    status: 'Dibatalkan',
-    payment: 'Belum Dibayar'
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data || []
+
+    products.value = data.map((item) => ({
+      id: Number(item.id_produk),
+      name: item.nama_produk || `Produk #${item.id_produk}`,
+      price: Number(item.harga) || 0
+    }))
+
+  } catch (error) {
+    console.error('Gagal mengambil data produk:', error)
   }
-])
+}
+
+
+/* =========================
+   FETCH PESANAN
+========================= */
+
+const fetchOrders = async () => {
+  loading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await api.get('/pesanan')
+
+    console.log('Data pesanan dari API:', response.data)
+
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data || []
+
+    orders.value = data.map((item) => {
+
+      const product = products.value.find(
+        (product) =>
+          product.id === Number(item.id_produk)
+      )
+
+      const qty = Number(item.qty) || 0
+
+      const price = product?.price || 0
+
+      return {
+        id: item.id_pesanan,
+
+        customer:
+          item.nama_pelanggan ||
+          item.customer_name ||
+          `Pelanggan #${item.id_petugas}`,
+
+        phone:
+          item.nomor_hp ||
+          item.phone ||
+          '-',
+
+        petugasId:
+          item.id_petugas,
+
+        date:
+          formatDate(item.tanggal_pesanan),
+
+        rawDate:
+          item.tanggal_pesanan,
+
+        productId:
+          Number(item.id_produk),
+
+        productName:
+          product?.name ||
+          item.nama_produk ||
+          `Produk #${item.id_produk}`,
+
+        qty,
+
+        price,
+
+        total:
+          price * qty,
+
+        alamat:
+          item.alamat ||
+          '-'
+      }
+    })
+
+  } catch (error) {
+    console.error(
+      'Gagal mengambil data pesanan:',
+      error
+    )
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      'Gagal mengambil data pesanan dari server.'
+
+  } finally {
+    loading.value = false
+  }
+}
+
+
+/* =========================
+   FORMAT TANGGAL
+========================= */
+
+const formatDate = (date) => {
+
+  if (!date) {
+    return '-'
+  }
+
+  const parsedDate = new Date(date)
+
+  if (isNaN(parsedDate.getTime())) {
+    return date
+  }
+
+  return new Intl.DateTimeFormat(
+    'id-ID',
+    {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }
+  ).format(parsedDate)
+}
+
+
+/* =========================
+   FORMAT PRICE
+========================= */
 
 const formatPrice = (price) => {
-  return new Intl.NumberFormat('id-ID').format(price)
+
+  return new Intl.NumberFormat(
+    'id-ID'
+  ).format(price || 0)
+
 }
+
+
+/* =========================
+   STATISTICS
+========================= */
 
 const totalOrders = computed(() => {
+
   return orders.value.length
+
 })
 
-const processingOrders = computed(() => {
-  return orders.value.filter(order => order.status === 'Diproses').length
+
+const totalItems = computed(() => {
+
+  return orders.value.reduce(
+    (total, order) =>
+      total + order.qty,
+    0
+  )
+
 })
 
-const completedOrders = computed(() => {
-  return orders.value.filter(order => order.status === 'Selesai').length
+
+const totalRevenue = computed(() => {
+
+  return orders.value.reduce(
+    (total, order) =>
+      total + order.total,
+    0
+  )
+
 })
 
-const waitingOrders = computed(() => {
-  return orders.value.filter(order => order.status === 'Menunggu').length
+
+const uniqueProducts = computed(() => {
+
+  return new Set(
+    orders.value.map(
+      order => order.productId
+    )
+  ).size
+
 })
+
+
+/* =========================
+   FILTER
+========================= */
 
 const filteredOrders = computed(() => {
-  return orders.value.filter(order => {
 
-    const search = searchQuery.value.toLowerCase()
+  const search =
+    searchQuery.value
+      .toLowerCase()
+      .trim()
 
-    const matchesSearch =
-      order.id.toLowerCase().includes(search) ||
-      order.customer.toLowerCase().includes(search)
+  if (!search) {
+    return orders.value
+  }
 
-    const matchesStatus =
-      selectedStatus.value === 'Semua' ||
-      order.status === selectedStatus.value
+  return orders.value.filter(
+    (order) => {
 
-    return matchesSearch && matchesStatus
-  })
+      return (
+        String(order.id)
+          .toLowerCase()
+          .includes(search) ||
+
+        String(order.customer)
+          .toLowerCase()
+          .includes(search) ||
+
+        String(order.productName)
+          .toLowerCase()
+          .includes(search) ||
+
+        String(order.alamat)
+          .toLowerCase()
+          .includes(search)
+      )
+
+    }
+  )
+
 })
 
-const getStatusClass = (status) => {
-  if (status === 'Selesai') {
-    return 'success'
-  }
 
-  if (status === 'Diproses') {
-    return 'processing'
-  }
-
-  if (status === 'Menunggu') {
-    return 'waiting'
-  }
-
-  if (status === 'Dibatalkan') {
-    return 'cancelled'
-  }
-
-  return ''
-}
+/* =========================
+   INITIAL
+========================= */
 
 const getInitial = (name) => {
-  return name.charAt(0).toUpperCase()
+
+  if (!name) {
+    return '?'
+  }
+
+  return name
+    .charAt(0)
+    .toUpperCase()
+
 }
+
+
+/* =========================
+   DETAIL MODAL
+========================= */
+
+const openDetail = (order) => {
+
+  selectedOrder.value = order
+
+  showDetailModal.value = true
+
+}
+
+
+const closeDetail = () => {
+
+  showDetailModal.value = false
+
+  selectedOrder.value = null
+
+}
+
+
+/* =========================
+   MOBILE MENU
+========================= */
 
 const toggleMenu = () => {
-  menuOpen.value = !menuOpen.value
+
+  menuOpen.value =
+    !menuOpen.value
+
 }
+
 
 const closeMenu = () => {
+
   menuOpen.value = false
+
 }
+
+
+/* =========================
+   LOGOUT
+========================= */
 
 const logout = () => {
+
   router.push('/login')
+
 }
+
+
+/* =========================
+   LOAD DATA
+========================= */
+
+onMounted(async () => {
+
+  await fetchProducts()
+
+  await fetchOrders()
+
+})
 </script>
 
+
 <template>
+
   <div class="dashboard-page">
 
     <!-- =========================
@@ -238,7 +350,6 @@ const logout = () => {
       :class="{ 'mobile-open': menuOpen }"
     >
 
-      <!-- BRAND -->
       <div class="brand">
 
         <img
@@ -249,7 +360,6 @@ const logout = () => {
       </div>
 
 
-      <!-- MENU -->
       <nav class="menu">
 
         <p class="menu-title">
@@ -257,7 +367,6 @@ const logout = () => {
         </p>
 
 
-        <!-- DASHBOARD -->
         <router-link
           to="/dashboard"
           class="menu-item"
@@ -275,7 +384,6 @@ const logout = () => {
         </router-link>
 
 
-        <!-- PRODUK -->
         <router-link
           to="/produk"
           class="menu-item"
@@ -293,7 +401,6 @@ const logout = () => {
         </router-link>
 
 
-        <!-- PESANAN -->
         <router-link
           to="/pesanan"
           class="menu-item active"
@@ -311,7 +418,6 @@ const logout = () => {
         </router-link>
 
 
-        <!-- HISTORY PELANGGAN -->
         <router-link
           to="/history-pelanggan"
           class="menu-item"
@@ -334,7 +440,6 @@ const logout = () => {
         </p>
 
 
-        <!-- PENGATURAN -->
         <router-link
           to="/pengaturan"
           class="menu-item"
@@ -354,7 +459,6 @@ const logout = () => {
       </nav>
 
 
-      <!-- SIDEBAR BOTTOM -->
       <div class="sidebar-bottom">
 
         <div class="admin-profile">
@@ -409,8 +513,6 @@ const logout = () => {
 
       <header class="topbar">
 
-
-        <!-- HAMBURGER -->
         <button
           class="hamburger-button"
           @click="toggleMenu"
@@ -424,7 +526,6 @@ const logout = () => {
         </button>
 
 
-        <!-- PAGE HEADING -->
         <div class="page-heading">
 
           <span class="small-title">
@@ -438,7 +539,6 @@ const logout = () => {
         </div>
 
 
-        <!-- TOPBAR RIGHT -->
         <div class="topbar-right">
 
           <div class="top-admin">
@@ -471,6 +571,7 @@ const logout = () => {
 
 
       <!-- OVERLAY MOBILE -->
+
       <div
         v-if="menuOpen"
         class="mobile-overlay"
@@ -486,6 +587,7 @@ const logout = () => {
 
 
         <!-- PAGE INTRO -->
+
         <div class="page-intro">
 
           <div>
@@ -515,6 +617,7 @@ const logout = () => {
 
 
           <!-- TOTAL PESANAN -->
+
           <div class="stat-card">
 
             <div class="stat-top">
@@ -544,91 +647,94 @@ const logout = () => {
           </div>
 
 
-          <!-- DIPROSES -->
+          <!-- TOTAL ITEM -->
+
           <div class="stat-card">
 
             <div class="stat-top">
 
               <div class="stat-icon pink">
-                ⏳
+                📦
               </div>
 
               <span class="stat-badge">
-                Proses
+                Item
               </span>
 
             </div>
 
             <p class="stat-label">
-              Sedang Diproses
+              Total Item
             </p>
 
             <h3>
-              {{ processingOrders }}
+              {{ totalItems }}
             </h3>
 
             <span class="stat-footer">
-              pesanan diproses
+              produk dipesan
             </span>
 
           </div>
 
 
-          <!-- SELESAI -->
+          <!-- TOTAL NILAI -->
+
           <div class="stat-card">
 
             <div class="stat-top">
 
               <div class="stat-icon peach">
-                ✓
+                Rp
               </div>
 
               <span class="stat-badge">
-                Selesai
+                Nilai
               </span>
 
             </div>
 
             <p class="stat-label">
-              Pesanan Selesai
+              Total Nilai Pesanan
             </p>
 
-            <h3>
-              {{ completedOrders }}
+            <h3 class="price-stat">
+              Rp {{ formatPrice(totalRevenue) }}
             </h3>
 
             <span class="stat-footer">
-              pesanan selesai
+              dari semua pesanan
             </span>
 
           </div>
 
 
-          <!-- MENUNGGU -->
+          <!-- PRODUK -->
+
           <div class="stat-card">
 
             <div class="stat-top">
 
               <div class="stat-icon cream">
-                !
+                🍰
               </div>
 
               <span class="stat-badge">
-                Menunggu
+                Produk
               </span>
 
             </div>
 
             <p class="stat-label">
-              Menunggu Pembayaran
+              Jenis Produk
             </p>
 
             <h3>
-              {{ waitingOrders }}
+              {{ uniqueProducts }}
             </h3>
 
             <span class="stat-footer">
-              belum dibayar
+              produk dipesan
             </span>
 
           </div>
@@ -644,6 +750,7 @@ const logout = () => {
 
 
           <!-- PANEL HEADER -->
+
           <div class="panel-header">
 
             <div>
@@ -659,11 +766,10 @@ const logout = () => {
             </div>
 
 
-            <!-- TOOLS -->
+            <!-- SEARCH -->
+
             <div class="order-tools">
 
-
-              <!-- SEARCH -->
               <div class="search-box">
 
                 <span>
@@ -678,36 +784,31 @@ const logout = () => {
 
               </div>
 
-
-              <!-- FILTER -->
-              <select
-                v-model="selectedStatus"
-                class="filter-select"
-              >
-
-                <option value="Semua">
-                  Semua Status
-                </option>
-
-                <option value="Menunggu">
-                  Menunggu
-                </option>
-
-                <option value="Diproses">
-                  Diproses
-                </option>
-
-                <option value="Selesai">
-                  Selesai
-                </option>
-
-                <option value="Dibatalkan">
-                  Dibatalkan
-                </option>
-
-              </select>
-
             </div>
+
+          </div>
+
+
+          <!-- ERROR -->
+
+          <div
+            v-if="errorMessage"
+            class="error-message"
+          >
+
+            {{ errorMessage }}
+
+          </div>
+
+
+          <!-- LOADING -->
+
+          <div
+            v-if="loading"
+            class="loading-order"
+          >
+
+            Memuat data pesanan...
 
           </div>
 
@@ -716,10 +817,14 @@ const logout = () => {
                DESKTOP TABLE
           ========================== -->
 
-          <div class="orders-table">
+          <div
+            v-else
+            class="orders-table"
+          >
 
 
             <!-- TABLE HEAD -->
+
             <div class="table-head">
 
               <span>
@@ -739,17 +844,14 @@ const logout = () => {
               </span>
 
               <span>
-                PEMBAYARAN
-              </span>
-
-              <span>
-                STATUS
+                AKSI
               </span>
 
             </div>
 
 
             <!-- ROW -->
+
             <div
               v-for="order in filteredOrders"
               :key="order.id"
@@ -758,6 +860,7 @@ const logout = () => {
 
 
               <!-- ORDER -->
+
               <div class="order-cell order-main">
 
                 <div class="order-icon">
@@ -780,6 +883,7 @@ const logout = () => {
 
 
               <!-- CUSTOMER -->
+
               <div class="order-cell customer-cell">
 
                 <div class="customer-avatar">
@@ -801,26 +905,27 @@ const logout = () => {
               </div>
 
 
-              <!-- PRODUCTS -->
+              <!-- PRODUCT -->
+
               <div class="order-cell product-cell">
 
-                <span class="product-count">
+                <div class="product-info">
 
-                  {{
-                    order.items.reduce(
-                      (total, item) => total + item.qty,
-                      0
-                    )
-                  }}
+                  <strong>
+                    {{ order.productName }}
+                  </strong>
 
-                  Produk
+                  <span>
+                    {{ order.qty }} × Rp {{ formatPrice(order.price) }}
+                  </span>
 
-                </span>
+                </div>
 
               </div>
 
 
               <!-- TOTAL -->
+
               <div class="order-cell">
 
                 <strong class="order-total">
@@ -830,38 +935,22 @@ const logout = () => {
               </div>
 
 
-              <!-- PAYMENT -->
-              <div class="order-cell">
+              <!-- ACTION -->
 
-                <span
-                  class="payment"
-                  :class="{
-                    'paid':
-                      order.payment === 'Sudah Dibayar',
+              <div class="order-cell action-cell">
 
-                    'unpaid':
-                      order.payment === 'Belum Dibayar'
-                  }"
+                <button
+                  class="detail-button"
+                  @click="openDetail(order)"
                 >
 
-                  {{ order.payment }}
+                  <span>
+                    ⌕
+                  </span>
 
-                </span>
+                  Lihat Detail
 
-              </div>
-
-
-              <!-- STATUS -->
-              <div class="order-cell">
-
-                <span
-                  class="status"
-                  :class="getStatusClass(order.status)"
-                >
-
-                  {{ order.status }}
-
-                </span>
+                </button>
 
               </div>
 
@@ -869,6 +958,7 @@ const logout = () => {
 
 
             <!-- EMPTY -->
+
             <div
               v-if="filteredOrders.length === 0"
               class="empty-order"
@@ -883,7 +973,7 @@ const logout = () => {
               </h3>
 
               <p>
-                Coba cari dengan nama pelanggan atau nomor pesanan.
+                Coba cari dengan nama pelanggan, produk, atau nomor pesanan.
               </p>
 
             </div>
@@ -895,7 +985,10 @@ const logout = () => {
                MOBILE ORDER CARDS
           ========================== -->
 
-          <div class="mobile-orders">
+          <div
+            v-if="!loading"
+            class="mobile-orders"
+          >
 
             <div
               v-for="order in filteredOrders"
@@ -905,6 +998,7 @@ const logout = () => {
 
 
               <!-- CARD TOP -->
+
               <div class="mobile-order-top">
 
                 <div class="mobile-order-id">
@@ -927,20 +1021,11 @@ const logout = () => {
 
                 </div>
 
-
-                <span
-                  class="status"
-                  :class="getStatusClass(order.status)"
-                >
-
-                  {{ order.status }}
-
-                </span>
-
               </div>
 
 
               <!-- CUSTOMER -->
+
               <div class="mobile-customer">
 
                 <div class="customer-avatar">
@@ -963,20 +1048,25 @@ const logout = () => {
 
 
               <!-- ITEMS -->
+
               <div class="mobile-items">
 
-                <div
-                  v-for="item in order.items"
-                  :key="item.name"
-                  class="mobile-item"
-                >
+                <div class="mobile-item">
 
-                  <span>
-                    {{ item.name }} ×{{ item.qty }}
-                  </span>
+                  <div class="mobile-product-name">
+
+                    <strong>
+                      {{ order.productName }}
+                    </strong>
+
+                    <span>
+                      {{ order.qty }} × Rp {{ formatPrice(order.price) }}
+                    </span>
+
+                  </div>
 
                   <strong>
-                    Rp {{ formatPrice(item.price * item.qty) }}
+                    Rp {{ formatPrice(order.total) }}
                   </strong>
 
                 </div>
@@ -984,31 +1074,24 @@ const logout = () => {
               </div>
 
 
+              <!-- ADDRESS -->
+
+              <div class="mobile-address">
+
+                <span>
+                  Alamat
+                </span>
+
+                <strong>
+                  {{ order.alamat }}
+                </strong>
+
+              </div>
+
+
               <!-- BOTTOM -->
+
               <div class="mobile-order-bottom">
-
-                <div>
-
-                  <span>
-                    Pembayaran
-                  </span>
-
-                  <strong
-                    :class="{
-                      'payment-paid':
-                        order.payment === 'Sudah Dibayar',
-
-                      'payment-unpaid':
-                        order.payment === 'Belum Dibayar'
-                    }"
-                  >
-
-                    {{ order.payment }}
-
-                  </strong>
-
-                </div>
-
 
                 <div class="mobile-total">
 
@@ -1022,12 +1105,27 @@ const logout = () => {
 
                 </div>
 
+
+                <button
+                  class="detail-button mobile-detail-button"
+                  @click="openDetail(order)"
+                >
+
+                  <span>
+                    ⌕
+                  </span>
+
+                  Lihat Detail
+
+                </button>
+
               </div>
 
             </div>
 
 
             <!-- MOBILE EMPTY -->
+
             <div
               v-if="filteredOrders.length === 0"
               class="empty-order"
@@ -1042,7 +1140,7 @@ const logout = () => {
               </h3>
 
               <p>
-                Coba cari dengan nama pelanggan atau nomor pesanan.
+                Coba cari dengan nama pelanggan, produk, atau nomor pesanan.
               </p>
 
             </div>
@@ -1072,7 +1170,225 @@ const logout = () => {
 
     </main>
 
+
+    <!-- =========================
+         DETAIL MODAL
+    ========================== -->
+
+    <div
+      v-if="showDetailModal && selectedOrder"
+      class="modal-overlay"
+      @click.self="closeDetail"
+    >
+
+      <div class="detail-modal">
+
+
+        <!-- MODAL HEADER -->
+
+        <div class="modal-header">
+
+          <div>
+
+            <span class="modal-label">
+              DETAIL PESANAN
+            </span>
+
+            <h2>
+              #{{ selectedOrder.id }}
+            </h2>
+
+          </div>
+
+
+          <button
+            class="modal-close"
+            @click="closeDetail"
+            aria-label="Tutup"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <!-- CUSTOMER -->
+
+        <div class="detail-customer">
+
+          <div class="detail-avatar">
+            {{ getInitial(selectedOrder.customer) }}
+          </div>
+
+          <div>
+
+            <span>
+              Pelanggan
+            </span>
+
+            <strong>
+              {{ selectedOrder.customer }}
+            </strong>
+
+            <small>
+              {{ selectedOrder.phone }}
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <!-- DETAIL GRID -->
+
+        <div class="detail-grid">
+
+
+          <div class="detail-item">
+
+            <span>
+              ID Pesanan
+            </span>
+
+            <strong>
+              #{{ selectedOrder.id }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span>
+              Tanggal
+            </span>
+
+            <strong>
+              {{ selectedOrder.date }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span>
+              ID Petugas
+            </span>
+
+            <strong>
+              {{
+                selectedOrder.petugasId
+                  ? `Petugas #${selectedOrder.petugasId}`
+                  : '-'
+              }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span>
+              ID Produk
+            </span>
+
+            <strong>
+              #{{ selectedOrder.productId }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- PRODUCT DETAIL -->
+
+        <div class="detail-section">
+
+          <span class="section-title">
+            PRODUK
+          </span>
+
+          <div class="detail-product">
+
+            <div class="detail-product-icon">
+              🍰
+            </div>
+
+            <div class="detail-product-info">
+
+              <strong>
+                {{ selectedOrder.productName }}
+              </strong>
+
+              <span>
+                {{ selectedOrder.qty }} ×
+                Rp {{ formatPrice(selectedOrder.price) }}
+              </span>
+
+            </div>
+
+            <strong class="detail-product-total">
+              Rp {{ formatPrice(selectedOrder.total) }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- ADDRESS -->
+
+        <div class="detail-section">
+
+          <span class="section-title">
+            ALAMAT PENGIRIMAN
+          </span>
+
+          <div class="address-box">
+
+            {{ selectedOrder.alamat }}
+
+          </div>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="detail-total">
+
+          <span>
+            Total Pesanan
+          </span>
+
+          <strong>
+            Rp {{ formatPrice(selectedOrder.total) }}
+          </strong>
+
+        </div>
+
+
+        <!-- MODAL FOOTER -->
+
+        <div class="modal-footer">
+
+          <button
+            class="close-detail-button"
+            @click="closeDetail"
+          >
+            Tutup
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
+
 </template>
 
 
@@ -1664,6 +1980,12 @@ body {
   color: #52634b;
 }
 
+.price-stat {
+  font-size: 22px !important;
+
+  white-space: nowrap;
+}
+
 .stat-footer {
   display: block;
 
@@ -1780,26 +2102,6 @@ body {
   color: #aaa;
 }
 
-.filter-select {
-  height: 40px;
-
-  padding: 0 12px;
-
-  border: 1px solid #e2e2dd;
-
-  border-radius: 11px;
-
-  outline: none;
-
-  background: white;
-
-  color: #68725f;
-
-  cursor: pointer;
-
-  font-size: 12px;
-}
-
 
 /* =========================
    TABLE
@@ -1816,12 +2118,11 @@ body {
   display: grid;
 
   grid-template-columns:
-    1.35fr
+    1.25fr
+    1.45fr
     1.55fr
-    0.75fr
-    1.05fr
-    1.15fr
-    0.9fr;
+    1fr
+    1.15fr;
 
   align-items: center;
 
@@ -1964,19 +2265,43 @@ body {
   color: #aaa;
 }
 
-.product-count {
-  padding: 6px 9px;
 
-  border-radius: 20px;
+/* =========================
+   PRODUCT
+========================= */
 
-  background: #f1f3e8;
+.product-info {
+  min-width: 0;
 
-  color: #718064;
+  display: flex;
 
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.product-info strong {
+  font-size: 11px;
+
+  color: #596653;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.product-info span {
   font-size: 9px;
 
-  font-weight: 600;
+  color: #aaa;
 }
+
+
+/* =========================
+   TOTAL
+========================= */
 
 .order-total {
   font-size: 11px;
@@ -1988,78 +2313,51 @@ body {
 
 
 /* =========================
-   PAYMENT
+   DETAIL BUTTON
 ========================= */
 
-.payment {
-  padding: 6px 9px;
-
-  border-radius: 20px;
-
-  font-size: 8px;
-
-  font-weight: 600;
-
-  white-space: nowrap;
+.action-cell {
+  justify-content: flex-start;
 }
 
-.payment.paid {
-  background: #e8f0e3;
+.detail-button {
+  height: 34px;
 
-  color: #6b835f;
-}
-
-.payment.unpaid {
-  background: #fff0df;
-
-  color: #ad7c4b;
-}
-
-
-/* =========================
-   STATUS
-========================= */
-
-.status {
   display: inline-flex;
 
   align-items: center;
 
   justify-content: center;
 
-  padding: 6px 9px;
+  gap: 7px;
 
-  border-radius: 20px;
+  padding: 0 12px;
 
-  font-size: 8px;
+  border: 1px solid #dfe5d7;
 
-  font-weight: 700;
+  border-radius: 10px;
 
-  white-space: nowrap;
+  background: #f4f7ef;
+
+  color: #627457;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
 }
 
-.status.success {
-  background: #e7f1e3;
+.detail-button:hover {
+  background: #718667;
 
-  color: #66805d;
-}
+  border-color: #718667;
 
-.status.processing {
-  background: #fff1df;
+  color: white;
 
-  color: #b17d4c;
-}
-
-.status.waiting {
-  background: #f5f0d8;
-
-  color: #a39256;
-}
-
-.status.cancelled {
-  background: #fff1ef;
-
-  color: #c7847f;
+  transform: translateY(-1px);
 }
 
 
@@ -2179,13 +2477,79 @@ body {
   color: #777;
 }
 
-.mobile-item strong {
+.mobile-product-name {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.mobile-product-name strong {
+  color: #596653;
+
+  font-size: 10px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.mobile-product-name span {
+  color: #aaa;
+
+  font-size: 9px;
+}
+
+.mobile-item > strong {
   color: #65765c;
 
   font-size: 10px;
 
   white-space: nowrap;
 }
+
+
+/* =========================
+   ADDRESS
+========================= */
+
+.mobile-address {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid #f0f0ed;
+}
+
+.mobile-address span {
+  font-size: 9px;
+
+  color: #aaa;
+}
+
+.mobile-address strong {
+  font-size: 10px;
+
+  line-height: 1.5;
+
+  color: #68725f;
+
+  font-weight: 500;
+}
+
+
+/* =========================
+   MOBILE BOTTOM
+========================= */
 
 .mobile-order-bottom {
   display: flex;
@@ -2199,26 +2563,20 @@ body {
   padding-top: 12px;
 }
 
-.mobile-order-bottom > div {
+.mobile-total {
   display: flex;
 
   flex-direction: column;
 
+  align-items: flex-start;
+
   gap: 4px;
 }
 
-.mobile-order-bottom span {
+.mobile-total span {
   font-size: 9px;
 
   color: #aaa;
-}
-
-.mobile-order-bottom strong {
-  font-size: 10px;
-}
-
-.mobile-total {
-  align-items: flex-end;
 }
 
 .mobile-total strong {
@@ -2227,12 +2585,10 @@ body {
   color: #52634b;
 }
 
-.payment-paid {
-  color: #6b835f;
-}
+.mobile-detail-button {
+  height: 35px;
 
-.payment-unpaid {
-  color: #ad7c4b;
+  flex-shrink: 0;
 }
 
 
@@ -2270,6 +2626,37 @@ body {
 
 
 /* =========================
+   LOADING / ERROR
+========================= */
+
+.loading-order {
+  padding: 60px 20px;
+
+  text-align: center;
+
+  color: #8b9384;
+
+  font-size: 12px;
+}
+
+.error-message {
+  margin-bottom: 15px;
+
+  padding: 12px 15px;
+
+  border: 1px solid #f0d8d5;
+
+  border-radius: 10px;
+
+  background: #fff5f3;
+
+  color: #b06f69;
+
+  font-size: 11px;
+}
+
+
+/* =========================
    FOOTER
 ========================= */
 
@@ -2285,6 +2672,421 @@ body {
   font-size: 10px;
 
   letter-spacing: 0.3px;
+}
+
+
+/* =========================
+   DETAIL MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(45, 52, 39, 0.42);
+
+  backdrop-filter: blur(3px);
+}
+
+.detail-modal {
+  width: 100%;
+
+  max-width: 560px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 27px;
+
+  border: 1px solid #eeeeea;
+
+  border-radius: 22px;
+
+  background: #fffdfb;
+
+  box-shadow:
+    0 25px 70px rgba(50,50,40,0.18);
+}
+
+.modal-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #eeeeea;
+}
+
+.modal-label {
+  font-size: 9px;
+
+  font-weight: bold;
+
+  letter-spacing: 2px;
+
+  color: #a0a99a;
+}
+
+.modal-header h2 {
+  margin: 6px 0 0;
+
+  font-family: Georgia, serif;
+
+  font-size: 25px;
+
+  color: #526b45;
+}
+
+.modal-close {
+  width: 35px;
+  height: 35px;
+
+  border: 1px solid #e5e5e0;
+
+  border-radius: 10px;
+
+  background: white;
+
+  color: #777;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.modal-close:hover {
+  background: #f5f5f0;
+
+  color: #526b45;
+}
+
+
+/* =========================
+   DETAIL CUSTOMER
+========================= */
+
+.detail-customer {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 20px 0;
+
+  border-bottom: 1px solid #eeeeea;
+}
+
+.detail-avatar {
+  width: 47px;
+  height: 47px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #e8efdf;
+
+  color: #6d8560;
+
+  font-size: 15px;
+
+  font-weight: bold;
+}
+
+.detail-customer > div:last-child {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.detail-customer span {
+  font-size: 9px;
+
+  color: #aaa;
+}
+
+.detail-customer strong {
+  font-size: 13px;
+
+  color: #515c4d;
+}
+
+.detail-customer small {
+  font-size: 9px;
+
+  color: #999;
+}
+
+
+/* =========================
+   DETAIL GRID
+========================= */
+
+.detail-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 1px;
+
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid #eeeeea;
+
+  border-radius: 13px;
+
+  background: #eeeeea;
+}
+
+.detail-item {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-height: 72px;
+
+  padding: 14px;
+
+  background: #fff;
+}
+
+.detail-item span {
+  font-size: 9px;
+
+  color: #aaa;
+}
+
+.detail-item strong {
+  font-size: 11px;
+
+  color: #596653;
+}
+
+
+/* =========================
+   DETAIL SECTION
+========================= */
+
+.detail-section {
+  margin-top: 20px;
+}
+
+.section-title {
+  display: block;
+
+  margin-bottom: 9px;
+
+  font-size: 9px;
+
+  font-weight: bold;
+
+  letter-spacing: 1.5px;
+
+  color: #9ca397;
+}
+
+.detail-product {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 13px;
+
+  border: 1px solid #eeeeea;
+
+  border-radius: 13px;
+
+  background: white;
+}
+
+.detail-product-icon {
+  width: 43px;
+  height: 43px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 11px;
+
+  background: #fce7e5;
+
+  font-size: 18px;
+}
+
+.detail-product-info {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  flex: 1;
+}
+
+.detail-product-info strong {
+  font-size: 12px;
+
+  color: #515c4d;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.detail-product-info span {
+  font-size: 9px;
+
+  color: #aaa;
+}
+
+.detail-product-total {
+  font-size: 11px;
+
+  color: #5e6f55;
+
+  white-space: nowrap;
+}
+
+
+/* =========================
+   ADDRESS
+========================= */
+
+.address-box {
+  padding: 13px;
+
+  border: 1px solid #eeeeea;
+
+  border-radius: 13px;
+
+  background: white;
+
+  color: #68725f;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================
+   DETAIL TOTAL
+========================= */
+
+.detail-total {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 20px;
+
+  padding: 17px;
+
+  border-radius: 13px;
+
+  background: #f1f3e8;
+}
+
+.detail-total span {
+  font-size: 11px;
+
+  color: #7d8776;
+}
+
+.detail-total strong {
+  font-family: Georgia, serif;
+
+  font-size: 17px;
+
+  color: #526b45;
+
+  white-space: nowrap;
+}
+
+
+/* =========================
+   MODAL FOOTER
+========================= */
+
+.modal-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 18px;
+}
+
+.close-detail-button {
+  height: 38px;
+
+  padding: 0 20px;
+
+  border: 1px solid #dfe3d9;
+
+  border-radius: 10px;
+
+  background: white;
+
+  color: #68725f;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.close-detail-button:hover {
+  background: #718667;
+
+  border-color: #718667;
+
+  color: white;
 }
 
 
@@ -2320,12 +3122,11 @@ body {
   .table-head,
   .order-row {
     grid-template-columns:
+      1.15fr
       1.25fr
       1.35fr
-      0.7fr
-      1fr
-      1fr
-      0.85fr;
+      0.9fr
+      1.05fr;
 
     column-gap: 10px;
   }
@@ -2600,6 +3401,10 @@ body {
     font-size: 22px;
   }
 
+  .price-stat {
+    font-size: 15px !important;
+  }
+
   .stat-footer {
     font-size: 8px;
 
@@ -2642,23 +3447,13 @@ body {
   }
 
   .search-box {
-    width: auto;
+    width: 100%;
 
     flex: 1;
 
     min-width: 0;
 
     height: 38px;
-  }
-
-  .filter-select {
-    width: 125px;
-
-    height: 38px;
-
-    flex-shrink: 0;
-
-    font-size: 10px;
   }
 
 
@@ -2686,6 +3481,25 @@ body {
     padding-top: 22px;
 
     font-size: 9px;
+  }
+
+
+  /* MODAL */
+
+  .modal-overlay {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+  .detail-modal {
+    max-width: 100%;
+
+    max-height: 92vh;
+
+    padding: 22px 17px;
+
+    border-radius: 22px 22px 0 0;
   }
 
 }
@@ -2773,6 +3587,10 @@ body {
     font-size: 20px;
   }
 
+  .price-stat {
+    font-size: 13px !important;
+  }
+
   .stat-footer {
     font-size: 7px;
   }
@@ -2788,10 +3606,6 @@ body {
     width: 100%;
 
     flex: none;
-  }
-
-  .filter-select {
-    width: 100%;
   }
 
 
@@ -2820,12 +3634,6 @@ body {
     font-size: 8px;
   }
 
-  .mobile-order-top .status {
-    font-size: 7px;
-
-    padding: 5px 7px;
-  }
-
   .customer-avatar {
     width: 35px;
     height: 35px;
@@ -2843,20 +3651,92 @@ body {
     font-size: 9px;
   }
 
-  .mobile-item strong {
+  .mobile-item > strong {
     font-size: 9px;
   }
 
-  .mobile-order-bottom span {
+  .mobile-product-name strong {
+    font-size: 9px;
+  }
+
+  .mobile-product-name span {
     font-size: 8px;
   }
 
-  .mobile-order-bottom strong {
+  .mobile-address span {
+    font-size: 8px;
+  }
+
+  .mobile-address strong {
     font-size: 9px;
+  }
+
+  .mobile-total span {
+    font-size: 8px;
   }
 
   .mobile-total strong {
     font-size: 12px;
+  }
+
+  .mobile-detail-button {
+    height: 33px;
+
+    padding: 0 10px;
+
+    font-size: 9px;
+  }
+
+
+  /* MODAL */
+
+  .detail-modal {
+    padding: 19px 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 22px;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-item {
+    min-height: 60px;
+  }
+
+  .detail-product {
+    padding: 11px;
+  }
+
+  .detail-product-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .detail-product-info strong {
+    font-size: 10px;
+  }
+
+  .detail-product-info span {
+    font-size: 8px;
+  }
+
+  .detail-product-total {
+    font-size: 9px;
+  }
+
+  .detail-total {
+    padding: 14px;
+  }
+
+  .detail-total span {
+    font-size: 9px;
+  }
+
+  .detail-total strong {
+    font-size: 14px;
   }
 
 }
@@ -2895,6 +3775,12 @@ body {
 
   .order-panel {
     padding: 12px;
+  }
+
+  .detail-button {
+    padding: 0 9px;
+
+    font-size: 8px;
   }
 
 }
