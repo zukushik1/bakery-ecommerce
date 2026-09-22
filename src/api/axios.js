@@ -1,10 +1,9 @@
 import axios from 'axios'
 
 // IP Laptop Backend Go kamu
-const BACKEND_IP = '192.168.69.223'
+const BACKEND_IP = '192.168.69.11'
 
 const api = axios.create({
-  // Menggunakan template string dan double slash http://
   baseURL: `http://${BACKEND_IP}:8081/api`,
   headers: {
     'Content-Type': 'application/json'

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '../api/axios'
 
 const router = useRouter()
 
@@ -9,6 +10,10 @@ const router = useRouter()
 ========================= */
 
 const logout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('role')
+  localStorage.removeItem('nama')
+
   router.push('/login')
 }
 
@@ -20,71 +25,96 @@ const logout = () => {
 const searchQuery = ref('')
 const showMenu = ref(false)
 
-/* MODAL DETAIL */
 const showDetail = ref(false)
 const selectedCustomer = ref(null)
 
+const customerHistory = ref([])
+
+const statistik = ref({
+  total_pelanggan: 0,
+  total_transaksi: 0,
+  total_pembelian: 0
+})
+
+const loading = ref(false)
+const errorMessage = ref('')
+
 
 /* =========================
-   DATA HISTORY PELANGGAN
+   FETCH HISTORY PELANGGAN
 ========================= */
 
-const customerHistory = ref([
-  {
-    id: 1,
-    name: 'Rina Amelia',
-    phone: '081234567890',
-    address: 'Jl. Soekarno Hatta No. 12',
-    totalTransaction: 3,
-    totalSpent: 1250000,
-    lastPurchase: '05 Sep 2026'
-  },
-  {
-    id: 2,
-    name: 'Dimas Pratama',
-    phone: '082345678901',
-    address: 'Jl. Sudirman No. 25',
-    totalTransaction: 2,
-    totalSpent: 675000,
-    lastPurchase: '03 Sep 2026'
-  },
-  {
-    id: 3,
-    name: 'Siti Rahma',
-    phone: '083456789012',
-    address: 'Jl. Ahmad Yani No. 18',
-    totalTransaction: 5,
-    totalSpent: 1985000,
-    lastPurchase: '02 Sep 2026'
-  },
-  {
-    id: 4,
-    name: 'Fajar Nugraha',
-    phone: '084567890123',
-    address: 'Jl. Imam Bonjol No. 7',
-    totalTransaction: 1,
-    totalSpent: 520000,
-    lastPurchase: '30 Agu 2026'
-  },
-  {
-    id: 5,
-    name: 'Nadia Putri',
-    phone: '085678901234',
-    address: 'Jl. Veteran No. 31',
-    totalTransaction: 3,
-    totalSpent: 945000,
-    lastPurchase: '28 Agu 2026'
-  },
-  {
-    id: 6,
-    name: 'Rizky Maulana',
-    phone: '086789012345',
-    address: 'Jl. Khatib Sulaiman No. 9',
-    totalTransaction: 1,
-    totalSpent: 210000,
-    lastPurchase: '25 Agu 2026'
+const fetchHistoryPelanggan = async () => {
+  loading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await api.get('/history-pelanggan')
+
+    console.log('Data history pelanggan:', response.data)
+
+    /* =========================
+       STATISTIK DARI BACKEND
+    ========================= */
+
+    statistik.value = response.data.statistik || {
+      total_pelanggan: 0,
+      total_transaksi: 0,
+      total_pembelian: 0
+    }
+
+
+    /* =========================
+       HISTORY DARI BACKEND
+    ========================= */
+
+    const history = response.data.history || []
+
+    customerHistory.value = history.map((customer, index) => ({
+      id: index + 1,
+
+      name: customer.nama_pelanggan || 'Tanpa Nama',
+
+      phone: customer.kontak || '-',
+
+      address: customer.alamat || '-',
+
+      totalTransaction:
+        Number(customer.total_transaksi) || 0,
+
+      totalSpent:
+        Number(customer.total_belanja) || 0,
+
+      lastPurchase: '-'
+    }))
+
+  } catch (error) {
+
+    console.error(
+      'Gagal mengambil history pelanggan:',
+      error
+    )
+
+    console.log(
+      'Status:',
+      error.response?.status
+    )
+
+    console.log(
+      'Response:',
+      error.response?.data
+    )
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      'Gagal mengambil data history pelanggan.'
+
+  } finally {
+
+    loading.value = false
+
   }
-])
+}
 
 
 /* =========================
@@ -92,16 +122,28 @@ const customerHistory = ref([
 ========================= */
 
 const filteredCustomers = computed(() => {
-  const keyword = searchQuery.value.toLowerCase().trim()
+
+  const keyword =
+    searchQuery.value
+      .toLowerCase()
+      .trim()
 
   if (!keyword) {
     return customerHistory.value
   }
 
   return customerHistory.value.filter(customer =>
-    customer.name.toLowerCase().includes(keyword) ||
-    customer.phone.includes(keyword) ||
-    customer.address.toLowerCase().includes(keyword)
+    customer.name
+      .toLowerCase()
+      .includes(keyword) ||
+
+    customer.phone
+      .toLowerCase()
+      .includes(keyword) ||
+
+    customer.address
+      .toLowerCase()
+      .includes(keyword)
   )
 })
 
@@ -111,11 +153,11 @@ const filteredCustomers = computed(() => {
 ========================= */
 
 const totalTransactions = computed(() => {
-  return customerHistory.value.reduce(
-    (total, customer) =>
-      total + customer.totalTransaction,
-    0
-  )
+
+  return Number(
+    statistik.value.total_transaksi
+  ) || 0
+
 })
 
 
@@ -124,11 +166,11 @@ const totalTransactions = computed(() => {
 ========================= */
 
 const totalSpent = computed(() => {
-  return customerHistory.value.reduce(
-    (total, customer) =>
-      total + customer.totalSpent,
-    0
-  )
+
+  return Number(
+    statistik.value.total_pembelian
+  ) || 0
+
 })
 
 
@@ -137,7 +179,11 @@ const totalSpent = computed(() => {
 ========================= */
 
 const formatPrice = (price) => {
-  return new Intl.NumberFormat('id-ID').format(price)
+
+  return new Intl.NumberFormat(
+    'id-ID'
+  ).format(Number(price) || 0)
+
 }
 
 
@@ -146,7 +192,15 @@ const formatPrice = (price) => {
 ========================= */
 
 const getInitial = (name) => {
-  return name.charAt(0).toUpperCase()
+
+  if (!name) {
+    return '?'
+  }
+
+  return name
+    .charAt(0)
+    .toUpperCase()
+
 }
 
 
@@ -155,10 +209,13 @@ const getInitial = (name) => {
 ========================= */
 
 const viewCustomer = (customer) => {
+
   selectedCustomer.value = customer
+
   showDetail.value = true
 
   document.body.style.overflow = 'hidden'
+
 }
 
 
@@ -167,10 +224,13 @@ const viewCustomer = (customer) => {
 ========================= */
 
 const closeDetail = () => {
+
   showDetail.value = false
+
   selectedCustomer.value = null
 
   document.body.style.overflow = ''
+
 }
 
 
@@ -179,12 +239,27 @@ const closeDetail = () => {
 ========================= */
 
 const handleModalBackground = (event) => {
-  if (event.target === event.currentTarget) {
+
+  if (
+    event.target ===
+    event.currentTarget
+  ) {
     closeDetail()
   }
-}
-</script>
 
+}
+
+
+/* =========================
+   LOAD DATA SAAT HALAMAN DIBUKA
+========================= */
+
+onMounted(() => {
+
+  fetchHistoryPelanggan()
+
+})
+</script>
 
 <template>
 

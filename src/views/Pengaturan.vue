@@ -1,32 +1,165 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '../api/axios'
 
 const router = useRouter()
 
 const showSuccess = ref(false)
+const showError = ref(false)
 const menuOpen = ref(false)
 
-const storeName = ref('Jericho & Nesya')
-const storeEmail = ref('jericho.nesya@gmail.com')
-const storePhone = ref('0822-8326-2013')
-const storeAddress = ref('Payakumbuh, Sumatera Barat')
+const loading = ref(false)
+const saving = ref(false)
+const errorMessage = ref('')
 
-const saveSettings = () => {
-  showSuccess.value = true
+/* =========================
+   DATA TOKO
+========================= */
 
-  setTimeout(() => {
-    showSuccess.value = false
-  }, 2500)
+const storeId = ref(0)
+const storeName = ref('')
+const storeEmail = ref('')
+const storePhone = ref('')
+const storeAddress = ref('')
+
+/* =========================
+   GET DATA TOKO
+========================= */
+
+const fetchStore = async () => {
+  loading.value = true
+  errorMessage.value = ''
+  showError.value = false
+
+  try {
+    const response = await api.get('/store')
+
+    console.log('Data toko dari backend:', response.data)
+
+    const toko = response.data?.data
+
+    if (!toko) {
+      throw new Error('Data toko tidak ditemukan.')
+    }
+
+    // Backend mengirim ID dengan JSON: "id"
+    storeId.value = toko.id || 0
+
+    if (!storeId.value) {
+      throw new Error('ID toko tidak ditemukan dari server.')
+    }
+
+    storeName.value = toko.nama_toko || ''
+    storeEmail.value = toko.email_toko || ''
+    storePhone.value = toko.nomor_telepon || ''
+    storeAddress.value = toko.alamat_toko || ''
+
+    console.log('ID toko:', storeId.value)
+    console.log('Nama toko:', storeName.value)
+
+  } catch (error) {
+    console.error('Gagal mengambil data toko:', error)
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      error.message ||
+      'Gagal mengambil informasi toko.'
+
+    showError.value = true
+
+  } finally {
+    loading.value = false
+  }
 }
+
+/* =========================
+   UPDATE DATA TOKO
+========================= */
+
+const saveSettings = async () => {
+  showSuccess.value = false
+  showError.value = false
+  errorMessage.value = ''
+
+  // Pastikan ID toko sudah didapat dari database
+  if (!storeId.value) {
+    errorMessage.value = 'ID toko tidak ditemukan.'
+    showError.value = true
+    return
+  }
+
+  saving.value = true
+
+  try {
+    const payload = {
+      id: storeId.value,
+      nama_toko: storeName.value.trim(),
+      email_toko: storeEmail.value.trim(),
+      nomor_telepon: storePhone.value.trim(),
+      alamat_toko: storeAddress.value.trim()
+    }
+
+    console.log('Data yang dikirim ke backend:', payload)
+
+    const response = await api.put('/store', payload)
+
+    console.log('Response update toko:', response.data)
+
+    showSuccess.value = true
+
+    /*
+      Ambil ulang data dari database.
+      Ini memastikan data yang tampil setelah
+      berhasil disimpan benar-benar berasal dari DB.
+    */
+    await fetchStore()
+
+    setTimeout(() => {
+      showSuccess.value = false
+    }, 2500)
+
+  } catch (error) {
+    console.error('Gagal menyimpan pengaturan toko:', error)
+
+    errorMessage.value =
+      error.response?.data?.error ||
+      'Gagal menyimpan pengaturan toko.'
+
+    showError.value = true
+
+  } finally {
+    saving.value = false
+  }
+}
+
+/* =========================
+   LOGOUT
+========================= */
 
 const logout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('role')
+  localStorage.removeItem('nama')
+
   router.push('/login')
 }
+
+/* =========================
+   MOBILE MENU
+========================= */
 
 const closeMenu = () => {
   menuOpen.value = false
 }
+
+/* =========================
+   LOAD DATA
+========================= */
+
+onMounted(() => {
+  fetchStore()
+})
 </script>
 
 <template>
@@ -311,6 +444,34 @@ const closeMenu = () => {
 
 
         <!-- =========================
+             LOADING
+        ========================== -->
+
+        <div
+          v-if="loading"
+          class="status-message loading-message"
+        >
+
+          <div class="status-icon">
+            ...
+          </div>
+
+          <div>
+
+            <strong>
+              Memuat informasi toko
+            </strong>
+
+            <p>
+              Sedang mengambil data toko dari server.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- =========================
              SUCCESS MESSAGE
         ========================== -->
 
@@ -339,10 +500,48 @@ const closeMenu = () => {
 
 
         <!-- =========================
+             ERROR MESSAGE
+        ========================== -->
+
+        <div
+          v-if="showError"
+          class="error-message"
+        >
+
+          <span class="error-icon">
+            !
+          </span>
+
+          <div>
+
+            <strong>
+              Gagal memproses pengaturan
+            </strong>
+
+            <p>
+              {{ errorMessage }}
+            </p>
+
+          </div>
+
+          <button
+            class="retry-button"
+            @click="fetchStore"
+          >
+            Coba Lagi
+          </button>
+
+        </div>
+
+
+        <!-- =========================
              SETTINGS GRID
         ========================== -->
 
-        <div class="settings-grid">
+        <div
+          v-if="!loading"
+          class="settings-grid"
+        >
 
 
           <!-- =========================
@@ -451,6 +650,7 @@ const closeMenu = () => {
               <input
                 v-model="storeName"
                 type="text"
+                placeholder="Masukkan nama toko"
               />
 
             </div>
@@ -466,6 +666,7 @@ const closeMenu = () => {
               <input
                 v-model="storeEmail"
                 type="email"
+                placeholder="Masukkan email toko"
               />
 
             </div>
@@ -481,6 +682,7 @@ const closeMenu = () => {
               <input
                 v-model="storePhone"
                 type="text"
+                placeholder="Masukkan nomor telepon"
               />
 
             </div>
@@ -496,6 +698,7 @@ const closeMenu = () => {
               <textarea
                 v-model="storeAddress"
                 rows="3"
+                placeholder="Masukkan alamat toko"
               ></textarea>
 
             </div>
@@ -509,7 +712,10 @@ const closeMenu = () => {
              SAVE BUTTON
         ========================== -->
 
-        <div class="save-section">
+        <div
+          v-if="!loading"
+          class="save-section"
+        >
 
           <p>
             Pastikan informasi toko sudah benar sebelum menyimpan.
@@ -518,13 +724,14 @@ const closeMenu = () => {
           <button
             class="save-button"
             @click="saveSettings"
+            :disabled="saving"
           >
 
             <span>
-              ✓
+              {{ saving ? '...' : '✓' }}
             </span>
 
-            Simpan Pengaturan
+            {{ saving ? 'Menyimpan...' : 'Simpan Pengaturan' }}
 
           </button>
 
@@ -1078,6 +1285,150 @@ body {
 
 
 /* =========================
+   STATUS MESSAGE
+========================= */
+
+.status-message {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 15px 18px;
+
+  margin-bottom: 20px;
+
+  border-radius: 15px;
+}
+
+.loading-message {
+  background: #f1f3df;
+
+  border: 1px solid #e3e6d5;
+
+  color: #68725f;
+}
+
+.status-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #718667;
+
+  color: white;
+
+  font-weight: bold;
+
+  letter-spacing: 1px;
+}
+
+.status-message strong {
+  display: block;
+
+  font-size: 13px;
+}
+
+.status-message p {
+  margin: 3px 0 0;
+
+  font-size: 10px;
+
+  color: #899581;
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+.error-message {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 15px 18px;
+
+  margin-bottom: 20px;
+
+  border: 1px solid #f0d4d1;
+
+  border-radius: 15px;
+
+  background: #fff3f1;
+
+  color: #9a625d;
+}
+
+.error-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #d98f8c;
+
+  color: white;
+
+  font-weight: bold;
+}
+
+.error-message strong {
+  display: block;
+
+  font-size: 13px;
+}
+
+.error-message p {
+  margin: 3px 0 0;
+
+  font-size: 10px;
+
+  color: #a47c77;
+}
+
+.retry-button {
+  margin-left: auto;
+
+  height: 36px;
+
+  padding: 0 14px;
+
+  border: 1px solid #e5c5c2;
+
+  border-radius: 10px;
+
+  background: white;
+
+  color: #9a625d;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.retry-button:hover {
+  background: #fff8f7;
+}
+
+
+/* =========================
    SETTINGS GRID
 ========================= */
 
@@ -1400,10 +1751,16 @@ body {
   transition: 0.2s;
 }
 
-.save-button:hover {
+.save-button:hover:not(:disabled) {
   background: #617658;
 
   transform: translateY(-1px);
+}
+
+.save-button:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
 }
 
 .save-button span {
@@ -1730,6 +2087,19 @@ body {
   }
 
 
+  /* ERROR */
+
+  .error-message {
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+  }
+
+  .retry-button {
+    margin-left: 47px;
+  }
+
+
   /* FOOTER */
 
   .dashboard-footer {
@@ -1840,6 +2210,26 @@ body {
 
   .success-message p {
     font-size: 9px;
+  }
+
+  .error-message {
+    padding: 12px;
+
+    gap: 9px;
+  }
+
+  .error-message strong {
+    font-size: 11px;
+  }
+
+  .error-message p {
+    font-size: 9px;
+  }
+
+  .retry-button {
+    margin-left: 0;
+
+    width: 100%;
   }
 
 }

@@ -202,6 +202,7 @@
 
         <div class="stats-grid">
 
+          <!-- TOTAL PRODUK -->
           <div class="stat-card">
 
             <div class="stat-top">
@@ -210,7 +211,7 @@
               </div>
 
               <span class="stat-change positive">
-                +12%
+                Data
               </span>
             </div>
 
@@ -219,16 +220,17 @@
             </p>
 
             <h3>
-              24
+              {{ totalProduk }}
             </h3>
 
             <span class="stat-footer">
-              dibanding bulan lalu
+              produk tersedia
             </span>
 
           </div>
 
 
+          <!-- PESANAN HARI INI -->
           <div class="stat-card">
 
             <div class="stat-top">
@@ -237,7 +239,7 @@
               </div>
 
               <span class="stat-change positive">
-                +8%
+                Hari ini
               </span>
             </div>
 
@@ -246,7 +248,7 @@
             </p>
 
             <h3>
-              18
+              {{ pesananHariIni }}
             </h3>
 
             <span class="stat-footer">
@@ -256,6 +258,7 @@
           </div>
 
 
+          <!-- TOTAL PELANGGAN -->
           <div class="stat-card">
 
             <div class="stat-top">
@@ -264,7 +267,7 @@
               </div>
 
               <span class="stat-change positive">
-                +15%
+                Data
               </span>
             </div>
 
@@ -273,16 +276,17 @@
             </p>
 
             <h3>
-              156
+              {{ totalPelanggan }}
             </h3>
 
             <span class="stat-footer">
-              pelanggan terdaftar
+              pelanggan
             </span>
 
           </div>
 
 
+          <!-- PENDAPATAN -->
           <div class="stat-card">
 
             <div class="stat-top">
@@ -291,7 +295,7 @@
               </div>
 
               <span class="stat-change positive">
-                +21%
+                Total
               </span>
             </div>
 
@@ -300,11 +304,11 @@
             </p>
 
             <h3>
-              Rp 4,8jt
+              {{ formatPendapatan(totalPendapatan) }}
             </h3>
 
             <span class="stat-footer">
-              bulan ini
+              dari seluruh pesanan
             </span>
 
           </div>
@@ -338,124 +342,79 @@
             </div>
 
 
+            <!-- LOADING -->
             <div
-              class="order-item"
-              @click="goToPesanan"
+              v-if="loading"
+              class="empty-data"
             >
-
-              <div class="order-avatar pink-avatar">
-                R
-              </div>
-
-              <div class="order-info">
-                <strong>Rina Amelia</strong>
-
-                <span>
-                  #ORD-00124 • 2 Produk
-                </span>
-              </div>
-
-              <div class="order-price">
-                <strong>
-                  Rp 185.000
-                </strong>
-
-                <span class="status pending">
-                  Diproses
-                </span>
-              </div>
-
+              Memuat data pesanan...
             </div>
 
 
+            <!-- ERROR -->
             <div
-              class="order-item"
-              @click="goToPesanan"
+              v-else-if="errorPesanan"
+              class="empty-data"
             >
-
-              <div class="order-avatar green-avatar">
-                D
-              </div>
-
-              <div class="order-info">
-                <strong>Dimas Pratama</strong>
-
-                <span>
-                  #ORD-00123 • 1 Produk
-                </span>
-              </div>
-
-              <div class="order-price">
-                <strong>
-                  Rp 95.000
-                </strong>
-
-                <span class="status success">
-                  Selesai
-                </span>
-              </div>
-
+              Gagal memuat data pesanan.
             </div>
 
 
-            <div
-              class="order-item"
-              @click="goToPesanan"
-            >
+            <!-- DATA PESANAN -->
+            <template v-else>
 
-              <div class="order-avatar peach-avatar">
-                S
+              <div
+                v-for="(order, index) in pesananTerbaru"
+                :key="order.id_pesanan || index"
+                class="order-item"
+                @click="goToPesanan"
+              >
+
+                <div
+                  class="order-avatar"
+                  :class="getAvatarClass(index)"
+                >
+                  {{ getInitial(order) }}
+                </div>
+
+                <div class="order-info">
+
+                  <strong>
+                    {{ getCustomerName(order) }}
+                  </strong>
+
+                  <span>
+                    #ORD-{{ formatOrderId(order.id_pesanan) }}
+                    •
+                    {{ order.qty || 0 }} Produk
+                  </span>
+
+                </div>
+
+                <div class="order-price">
+
+                  <strong>
+                    {{ formatRupiah(order.total_pesanan) }}
+                  </strong>
+
+                  <span class="status pending">
+                    {{ getStatus(order) }}
+                  </span>
+
+                </div>
+
               </div>
 
-              <div class="order-info">
-                <strong>Siti Rahma</strong>
 
-                <span>
-                  #ORD-00122 • 3 Produk
-                </span>
+              <!-- KOSONG -->
+              <div
+                v-if="pesananTerbaru.length === 0"
+                class="empty-data"
+              >
+                Belum ada pesanan.
               </div>
 
-              <div class="order-price">
-                <strong>
-                  Rp 275.000
-                </strong>
-
-                <span class="status pending">
-                  Diproses
-                </span>
-              </div>
-
-            </div>
-
-
-            <div
-              class="order-item"
-              @click="goToPesanan"
-            >
-
-              <div class="order-avatar yellow-avatar">
-                F
-              </div>
-
-              <div class="order-info">
-                <strong>Fajar Nugraha</strong>
-
-                <span>
-                  #ORD-00121 • 2 Produk
-                </span>
-              </div>
-
-              <div class="order-price">
-                <strong>
-                  Rp 210.000
-                </strong>
-
-                <span class="status success">
-                  Selesai
-                </span>
-              </div>
-
-            </div>
+            </template>
 
           </div>
 
@@ -480,106 +439,64 @@
             </div>
 
 
-            <div class="product-item">
-
-              <div class="product-image">
-                <img
-                  src="../assets/images/brownies.jpg"
-                  alt="Brownies"
-                />
-              </div>
-
-              <div class="product-info">
-                <strong>Brownies</strong>
-
-                <span>
-                  48 terjual
-                </span>
-              </div>
-
-              <strong class="product-price">
-                Rp 35K
-              </strong>
-
+            <!-- LOADING -->
+            <div
+              v-if="loading"
+              class="empty-data"
+            >
+              Memuat data produk...
             </div>
 
 
-            <div class="product-item">
+            <template v-else>
 
-              <div class="product-image second">
-                <img
-                  src="../assets/images/matcha-cupcake.jpg"
-                  alt="Matcha Cupcake"
-                />
-              </div>
+              <div
+                v-for="(product, index) in produkTerlaris"
+                :key="product.id_produk || index"
+                class="product-item"
+              >
 
-              <div class="product-info">
-                <strong>
-                  Matcha Cupcake
+                <div
+                  class="product-image"
+                  :class="getProductImageClass(index)"
+                >
+
+                  <img
+                    :src="getProductImage(product.gambar)"
+                    :alt="product.nama_produk"
+                    @error="handleImageError"
+                  />
+
+                </div>
+
+                <div class="product-info">
+
+                  <strong>
+                    {{ product.nama_produk }}
+                  </strong>
+
+                  <span>
+                    {{ product.terjual }} terjual
+                  </span>
+
+                </div>
+
+                <strong class="product-price">
+                  {{ formatRupiah(product.harga) }}
                 </strong>
 
-                <span>
-                  42 terjual
-                </span>
               </div>
 
-              <strong class="product-price">
-                Rp 25K
-              </strong>
 
-            </div>
-
-
-            <div class="product-item">
-
-              <div class="product-image third">
-                <img
-                  src="../assets/images/oatmeal-cookies.jpg"
-                  alt="Oatmeal Cookies"
-                />
+              <!-- KOSONG -->
+              <div
+                v-if="produkTerlaris.length === 0"
+                class="empty-data"
+              >
+                Belum ada data produk.
               </div>
 
-              <div class="product-info">
-                <strong>
-                  Oatmeal Cookies
-                </strong>
-
-                <span>
-                  36 terjual
-                </span>
-              </div>
-
-              <strong class="product-price">
-                Rp 30K
-              </strong>
-
-            </div>
-
-
-            <div class="product-item">
-
-              <div class="product-image fourth">
-                <img
-                  src="../assets/images/strawberry-cake.jpg"
-                  alt="Strawberry Cake"
-                />
-              </div>
-
-              <div class="product-info">
-                <strong>
-                  Strawberry Cake
-                </strong>
-
-                <span>
-                  31 terjual
-                </span>
-              </div>
-
-              <strong class="product-price">
-                Rp 80K
-              </strong>
-
-            </div>
+            </template>
 
           </div>
 
@@ -608,12 +525,24 @@
 
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { useRouter } from "vue-router"
+import api from "../api/axios"
 
 const router = useRouter()
 
 const menuOpen = ref(false)
+
+const produk = ref([])
+const pesanan = ref([])
+
+const loading = ref(true)
+const errorPesanan = ref(false)
+
+
+// =========================
+// MENU
+// =========================
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
@@ -623,6 +552,11 @@ function closeMenu() {
   menuOpen.value = false
 }
 
+
+// =========================
+// NAVIGATION
+// =========================
+
 function goToPesanan() {
   menuOpen.value = false
   router.push("/pesanan")
@@ -630,8 +564,646 @@ function goToPesanan() {
 
 function logout() {
   menuOpen.value = false
+
+  localStorage.removeItem("token")
+  localStorage.removeItem("role")
+  localStorage.removeItem("nama")
+
   router.push("/login")
 }
+
+
+// =========================
+// GET DATA BACKEND
+// =========================
+
+async function getDashboardData() {
+
+  loading.value = true
+  errorPesanan.value = false
+
+  try {
+
+    const [produkResponse, pesananResponse] = await Promise.all([
+      api.get("/produk"),
+      api.get("/pesanan")
+    ])
+
+
+    // =========================
+    // DATA PRODUK
+    // =========================
+
+    produk.value = getResponseData(produkResponse)
+
+
+    // =========================
+    // DATA PESANAN
+    // =========================
+
+    pesanan.value = getResponseData(pesananResponse)
+
+
+  } catch (error) {
+
+    console.error(
+      "Gagal mengambil data dashboard:",
+      error
+    )
+
+    errorPesanan.value = true
+
+  } finally {
+
+    loading.value = false
+
+  }
+}
+
+
+// =========================
+// RESPONSE DATA
+// =========================
+
+function getResponseData(response) {
+
+  if (!response || !response.data) {
+    return []
+  }
+
+
+  // Kalau backend langsung mengirim array
+  if (Array.isArray(response.data)) {
+    return response.data
+  }
+
+
+  // Kalau backend mengirim { data: [] }
+  if (Array.isArray(response.data.data)) {
+    return response.data.data
+  }
+
+
+  // Kalau backend mengirim { produk: [] }
+  if (Array.isArray(response.data.produk)) {
+    return response.data.produk
+  }
+
+
+  // Kalau backend mengirim { pesanan: [] }
+  if (Array.isArray(response.data.pesanan)) {
+    return response.data.pesanan
+  }
+
+
+  // Kalau backend mengirim { result: [] }
+  if (Array.isArray(response.data.result)) {
+    return response.data.result
+  }
+
+
+  return []
+}
+
+
+// =========================
+// TOTAL PRODUK
+// =========================
+
+const totalProduk = computed(() => {
+
+  return produk.value.length
+
+})
+
+
+// =========================
+// PESANAN HARI INI
+// =========================
+
+const pesananHariIni = computed(() => {
+
+  const sekarang = new Date()
+
+  const tahun = sekarang.getFullYear()
+  const bulan = sekarang.getMonth()
+  const tanggal = sekarang.getDate()
+
+
+  return pesanan.value.filter((item) => {
+
+    const tanggalPesanan =
+      new Date(item.tanggal_pesanan)
+
+
+    if (isNaN(tanggalPesanan.getTime())) {
+      return false
+    }
+
+
+    return (
+      tanggalPesanan.getFullYear() === tahun &&
+      tanggalPesanan.getMonth() === bulan &&
+      tanggalPesanan.getDate() === tanggal
+    )
+
+  }).length
+
+})
+
+
+// =========================
+// TOTAL PELANGGAN
+// =========================
+
+const totalPelanggan = computed(() => {
+
+  const pelanggan = new Set()
+
+
+  pesanan.value.forEach((item) => {
+
+    /*
+     * Backend Pesanan saat ini tidak memiliki
+     * id_pelanggan.
+     *
+     * Jadi gunakan nomor HP sebagai identitas
+     * pelanggan jika tersedia.
+     *
+     * Kalau nomor HP tidak ada, gunakan nama pelanggan.
+     */
+
+    if (item.nomor_hp) {
+
+      pelanggan.add(
+        String(item.nomor_hp)
+          .trim()
+          .toLowerCase()
+      )
+
+      return
+    }
+
+
+    if (item.nama_pelanggan) {
+
+      pelanggan.add(
+        String(item.nama_pelanggan)
+          .trim()
+          .toLowerCase()
+      )
+
+    }
+
+  })
+
+
+  return pelanggan.size
+
+})
+
+
+// =========================
+// TOTAL PENDAPATAN
+// =========================
+
+const totalPendapatan = computed(() => {
+
+  return pesanan.value.reduce(
+    (total, item) => {
+
+      /*
+       * Backend Pesanan menggunakan:
+       * total_pesanan
+       */
+
+      const harga =
+        Number(item.total_pesanan) || 0
+
+      return total + harga
+
+    },
+    0
+  )
+
+})
+
+
+// =========================
+// PESANAN TERBARU
+// =========================
+
+const pesananTerbaru = computed(() => {
+
+  return [...pesanan.value]
+
+    .sort((a, b) => {
+
+      const tanggalA =
+        new Date(a.tanggal_pesanan).getTime()
+
+      const tanggalB =
+        new Date(b.tanggal_pesanan).getTime()
+
+      return tanggalB - tanggalA
+
+    })
+
+    .slice(0, 4)
+
+})
+
+
+// =========================
+// PRODUK TERLARIS
+// =========================
+
+const produkTerlaris = computed(() => {
+
+  const jumlahTerjual = {}
+
+
+  // Hitung qty dari pesanan
+  pesanan.value.forEach((pesananItem) => {
+
+    const idProduk =
+      pesananItem.id_produk
+
+    if (
+      idProduk === undefined ||
+      idProduk === null
+    ) {
+      return
+    }
+
+
+    const qty =
+      Number(pesananItem.qty) || 0
+
+
+    if (!jumlahTerjual[idProduk]) {
+      jumlahTerjual[idProduk] = 0
+    }
+
+
+    jumlahTerjual[idProduk] += qty
+
+  })
+
+
+  // Gabungkan dengan data produk
+  const hasil = produk.value.map((item) => {
+
+    const id =
+      item.id_produk
+
+
+    return {
+      ...item,
+
+      terjual:
+        jumlahTerjual[id] || 0
+
+    }
+
+  })
+
+
+  // Urutkan dari penjualan terbesar
+  return hasil
+
+    .sort((a, b) => {
+
+      return b.terjual - a.terjual
+
+    })
+
+    .slice(0, 4)
+
+})
+
+
+// =========================
+// NAMA PELANGGAN
+// =========================
+
+function getCustomerName(order) {
+
+  if (order.nama_pelanggan) {
+    return order.nama_pelanggan
+  }
+
+
+  if (order.pelanggan) {
+
+    if (
+      typeof order.pelanggan === "object" &&
+      order.pelanggan.nama_pelanggan
+    ) {
+
+      return order.pelanggan.nama_pelanggan
+
+    }
+
+
+    if (
+      typeof order.pelanggan === "string"
+    ) {
+
+      return order.pelanggan
+
+    }
+
+  }
+
+
+  if (order.nama) {
+    return order.nama
+  }
+
+
+  if (order.customer) {
+    return order.customer
+  }
+
+
+  return `Pelanggan #${order.id_pelanggan || "-"}`
+
+}
+
+
+// =========================
+// INITIAL AVATAR
+// =========================
+
+function getInitial(order) {
+
+  const nama =
+    getCustomerName(order)
+
+
+  if (!nama) {
+    return "P"
+  }
+
+
+  return nama
+    .charAt(0)
+    .toUpperCase()
+
+}
+
+
+// =========================
+// AVATAR CLASS
+// =========================
+
+function getAvatarClass(index) {
+
+  const classes = [
+    "pink-avatar",
+    "green-avatar",
+    "peach-avatar",
+    "yellow-avatar"
+  ]
+
+
+  return classes[index % classes.length]
+
+}
+
+
+// =========================
+// STATUS
+// =========================
+
+function getStatus(order) {
+
+  if (order.status) {
+
+    return order.status
+
+  }
+
+
+  if (order.status_pesanan) {
+
+    return order.status_pesanan
+
+  }
+
+
+  return "Diproses"
+
+}
+
+
+// =========================
+// FORMAT ID PESANAN
+// =========================
+
+function formatOrderId(id) {
+
+  if (
+    id === undefined ||
+    id === null
+  ) {
+
+    return "00000"
+
+  }
+
+
+  return String(id)
+    .padStart(5, "0")
+
+}
+
+
+// =========================
+// FORMAT RUPIAH
+// =========================
+
+function formatRupiah(value) {
+
+  const angka =
+    Number(value) || 0
+
+
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0
+    }
+  ).format(angka)
+
+}
+
+
+// =========================
+// FORMAT PENDAPATAN
+// =========================
+
+function formatPendapatan(value) {
+
+  const angka =
+    Number(value) || 0
+
+
+  if (angka >= 1000000) {
+
+    const juta =
+      angka / 1000000
+
+
+    return `Rp ${juta.toFixed(1).replace(".", ",")}jt`
+
+  }
+
+
+  if (angka >= 1000) {
+
+    const ribu =
+      angka / 1000
+
+
+    return `Rp ${Math.round(ribu)}K`
+
+  }
+
+
+  return formatRupiah(angka)
+
+}
+
+
+// =========================
+// GAMBAR PRODUK DARI BACKEND
+// =========================
+
+function getProductImage(image) {
+
+  if (!image) {
+
+    return "../assets/images/brownies.jpg"
+
+  }
+
+
+  const BACKEND_URL =
+    "http://192.168.69.11:8081"
+
+
+  const gambar =
+    String(image).trim()
+
+
+  if (!gambar) {
+
+    return "../assets/images/brownies.jpg"
+
+  }
+
+
+  // Kalau database menyimpan URL localhost
+  if (
+    gambar.startsWith(
+      "http://localhost:8081"
+    )
+  ) {
+
+    return gambar.replace(
+      "http://localhost:8081",
+      BACKEND_URL
+    )
+
+  }
+
+
+  // Kalau database menyimpan URL 127.0.0.1
+  if (
+    gambar.startsWith(
+      "http://127.0.0.1:8081"
+    )
+  ) {
+
+    return gambar.replace(
+      "http://127.0.0.1:8081",
+      BACKEND_URL
+    )
+
+  }
+
+
+  // Kalau sudah URL lengkap
+  if (
+    gambar.startsWith("http://") ||
+    gambar.startsWith("https://")
+  ) {
+
+    return gambar
+
+  }
+
+
+  // Kalau database hanya menyimpan nama file
+  // contoh: brownies.jpg
+  return `${BACKEND_URL}/uploads/${gambar.replace(
+    /^\/?uploads\//,
+    ""
+  )}`
+
+}
+
+
+// =========================
+// CLASS GAMBAR PRODUK
+// =========================
+
+function getProductImageClass(index) {
+
+  const classes = [
+    "",
+    "second",
+    "third",
+    "fourth"
+  ]
+
+
+  return classes[index % classes.length]
+
+}
+
+
+// =========================
+// IMAGE ERROR
+// =========================
+
+function handleImageError(event) {
+
+  console.error(
+    "Gambar produk gagal dimuat:",
+    event.target.src
+  )
+
+  event.target.src =
+    "../assets/images/brownies.jpg"
+
+}
+
+
+// =========================
+// LOAD DATA
+// =========================
+
+onMounted(() => {
+
+  getDashboardData()
+
+})
+
 </script>
 
 
@@ -1555,6 +2127,26 @@ body {
   font-size: 11px;
 
   color: #65765c;
+}
+
+
+/* =========================
+   EMPTY DATA
+========================= */
+
+.empty-data {
+  min-height: 75px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #aaa;
+
+  font-size: 11px;
+
+  text-align: center;
 }
 
 

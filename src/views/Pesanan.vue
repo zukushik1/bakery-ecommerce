@@ -69,6 +69,8 @@ const fetchOrders = async () => {
 
       const price = product?.price || 0
 
+      const total = Number(item.total_pesanan) || 0
+
       return {
         id: item.id_pesanan,
 
@@ -103,8 +105,7 @@ const fetchOrders = async () => {
 
         price,
 
-        total:
-          price * qty,
+        total,
 
         alamat:
           item.alamat ||

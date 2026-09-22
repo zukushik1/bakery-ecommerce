@@ -1,5 +1,3 @@
-<!-- Produk.vue -->
-
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -102,7 +100,7 @@ const getImageUrl = (image) => {
     return ''
   }
 
-  const BACKEND_URL = 'http://192.168.69.223:8081'
+  const BACKEND_URL = 'http://192.168.69.11:8081'
 
   // Kalau backend mengirim URL localhost
   if (image.startsWith('http://localhost:8081')) {
@@ -415,24 +413,19 @@ const editProduct = (product) => {
 ========================= */
 
 const updateProduct = async () => {
-  if (!editingProductId.value) {
-    return
-  }
+  if (!editingProductId.value) return
 
   if (!form.value.nama_produk.trim()) {
     errorMessage.value = 'Nama produk wajib diisi.'
     return
   }
 
-  if (!form.value.harga || Number(form.value.harga) < 0) {
+  if (form.value.harga === '' || Number(form.value.harga) < 0) {
     errorMessage.value = 'Harga produk tidak valid.'
     return
   }
 
-  if (
-    form.value.stok === '' ||
-    Number(form.value.stok) < 0
-  ) {
+  if (form.value.stok === '' || Number(form.value.stok) < 0) {
     errorMessage.value = 'Stok produk tidak valid.'
     return
   }
@@ -442,41 +435,30 @@ const updateProduct = async () => {
   successMessage.value = ''
 
   try {
-    /*
-      Backend UpdateProduk menggunakan:
-      c.ShouldBindJSON(&input)
+    const formData = new FormData()
 
-      Jadi PUT harus menggunakan JSON,
-      bukan FormData.
-    */
+    formData.append('nama_produk', form.value.nama_produk.trim())
+    formData.append('deskripsi', form.value.deskripsi || '')
+    formData.append('harga', String(form.value.harga))
+    formData.append('stok', String(form.value.stok))
+    formData.append('kategori', form.value.kategori || '')
 
-    const payload = {
-      nama_produk: form.value.nama_produk,
-      deskripsi: form.value.deskripsi,
-      harga: Number(form.value.harga),
-      stok: Number(form.value.stok),
-      kategori: form.value.kategori
-    }
-
-    /*
-      Kalau produk sebelumnya punya gambar,
-      pertahankan URL gambar tersebut.
-    */
-    const oldProduct = products.value.find(
-      product => product.id === editingProductId.value
-    )
-
-    if (oldProduct?.image) {
-      payload.gambar = oldProduct.image
+    // Kalau user memilih gambar baru, kirim juga
+    if (form.value.gambar) {
+      formData.append('gambar', form.value.gambar)
     }
 
     await api.put(
       `/produk/${editingProductId.value}`,
-      payload
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
     )
 
-    successMessage.value =
-      'Produk berhasil diperbarui.'
+    successMessage.value = 'Produk berhasil diperbarui.'
 
     showAddForm.value = false
     resetForm()
@@ -485,6 +467,8 @@ const updateProduct = async () => {
 
   } catch (error) {
     console.error('Gagal update produk:', error)
+    console.log('Status:', error.response?.status)
+    console.log('Response:', error.response?.data)
 
     errorMessage.value =
       error.response?.data?.error ||
