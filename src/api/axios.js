@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // IP Laptop Backend Go kamu
-const BACKEND_IP = '192.168.69.11'
+const BACKEND_IP = '192.168.69.111'
 
 const api = axios.create({
   baseURL: `http://${BACKEND_IP}:8081/api`,

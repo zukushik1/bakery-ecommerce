@@ -1093,7 +1093,7 @@ function getProductImage(image) {
 
 
   const BACKEND_URL =
-    "http://192.168.69.11:8081"
+    "http://192.168.69.111:8081"
 
 
   const gambar =

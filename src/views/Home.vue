@@ -327,9 +327,17 @@
             >
 
               <img
+                v-if="product.image"
                 :src="product.image"
                 :alt="product.name"
               >
+
+              <div
+                v-else
+                class="no-product-image"
+              >
+                No Image
+              </div>
 
             </div>
 
@@ -355,6 +363,7 @@
                 <button
                   class="add-button"
                   title="Tambah ke keranjang"
+                  :disabled="product.stock <= 0"
                   @click="addToCart(product)"
                 >
 
@@ -413,11 +422,15 @@
           >
 
             <div class="all-products-title">
-              <h3>Semua Produk</h3>
+
+              <h3>
+                Semua Produk
+              </h3>
 
               <p>
                 Temukan lebih banyak pilihan kue favoritmu
               </p>
+
             </div>
 
 
@@ -435,9 +448,17 @@
                 >
 
                   <img
+                    v-if="product.image"
                     :src="product.image"
                     :alt="product.name"
                   >
+
+                  <div
+                    v-else
+                    class="no-product-image"
+                  >
+                    No Image
+                  </div>
 
                 </div>
 
@@ -463,6 +484,7 @@
                     <button
                       class="add-button"
                       title="Tambah ke keranjang"
+                      :disabled="product.stock <= 0"
                       @click="addToCart(product)"
                     >
 
@@ -567,7 +589,9 @@
 
           <p>CARA PEMESANAN</p>
 
-          <h2>Mudah untuk Memesan</h2>
+          <h2>
+            Mudah untuk Memesan
+          </h2>
 
           <span>
             Nikmati kue favoritmu dengan beberapa langkah sederhana
@@ -586,7 +610,9 @@
 
             <div>
 
-              <h3>Pilih Produk</h3>
+              <h3>
+                Pilih Produk
+              </h3>
 
               <p>
                 Pilih kue yang ingin kamu pesan dari berbagai
@@ -606,7 +632,9 @@
 
             <div>
 
-              <h3>Masukkan Keranjang</h3>
+              <h3>
+                Masukkan Keranjang
+              </h3>
 
               <p>
                 Tentukan jumlah produk lalu masukkan ke
@@ -626,7 +654,9 @@
 
             <div>
 
-              <h3>Lakukan Pemesanan</h3>
+              <h3>
+                Lakukan Pemesanan
+              </h3>
 
               <p>
                 Periksa kembali pesanan kemudian lanjutkan
@@ -646,7 +676,9 @@
 
             <div>
 
-              <h3>Pesanan Diproses</h3>
+              <h3>
+                Pesanan Diproses
+              </h3>
 
               <p>
                 Pesanan kamu akan diproses dan disiapkan
@@ -670,74 +702,135 @@
 
         <div class="contact-card">
 
-          <div>
+          <!-- INFO KONTAK -->
+          <div class="contact-main">
 
             <p class="section-label">
               HUBUNGI KAMI
             </p>
 
             <h2>
-              Ada yang ingin<br>
-              kamu tanyakan?
+              {{ storeSettings.nama_toko || 'Jericho & Nesya' }}
             </h2>
 
             <p>
-              Jangan ragu untuk menghubungi kami mengenai
-              produk maupun pesanan kamu.
+              Punya pertanyaan atau ingin melakukan pemesanan?
+              Jangan ragu untuk menghubungi kami melalui
+              informasi di bawah ini.
             </p>
+
+            <!-- TELEPON -->
+            <div class="contact-info">
+
+              <div class="contact-item">
+
+                <span>
+                  ☎
+                </span>
+
+                <div>
+
+                  <small>
+                    Telepon
+                  </small>
+
+                  <strong>
+                    {{
+                      storeSettings.nomor_telepon ||
+                      'Memuat nomor...'
+                    }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <!-- EMAIL -->
+              <div class="contact-item">
+
+                <span>
+                  ✉
+                </span>
+
+                <div>
+
+                  <small>
+                    Email
+                  </small>
+
+                  <strong>
+                    {{
+                      storeSettings.email_toko ||
+                      'Memuat email...'
+                    }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <!-- ALAMAT -->
+              <div class="contact-item">
+
+                <span>
+                  ⌂
+                </span>
+
+                <div>
+
+                  <small>
+                    Alamat
+                  </small>
+
+                  <strong>
+                    {{
+                      storeSettings.alamat_toko ||
+                      'Memuat alamat...'
+                    }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </div>
 
           </div>
 
 
-          <div class="contact-info">
+          <!-- GOOGLE MAPS -->
+          <div class="contact-map">
 
-            <div class="contact-item">
+            <div class="map-header">
 
-              <span>☎</span>
+              <p class="map-label">
+                LOKASI TOKO
+              </p>
 
-              <div>
+              <h3>
+                Temukan Kami
+              </h3>
 
-                <small>Telepon</small>
-
-                <strong>
-                  0822-8326-2013
-                </strong>
-
-              </div>
-
-            </div>
-
-
-            <div class="contact-item">
-
-              <span>✉</span>
-
-              <div>
-
-                <small>Email</small>
-
-                <strong>
-                  jerichoselectravaviaan@email.com
-                </strong>
-
-              </div>
+              <p class="map-address">
+                {{
+                  storeSettings.alamat_toko ||
+                  'Jl. Muchtar Latief, Padang Sikabu, Kec. Lamposi Tigo Nagori, Kota Payakumbuh, Sumatera Barat'
+                }}
+              </p>
 
             </div>
 
 
-            <div class="contact-item">
+            <div class="map-container">
 
-              <span>⌂</span>
-
-              <div>
-
-                <small>Alamat</small>
-
-                <strong>
-                  Indonesia
-                </strong>
-
-              </div>
+              <iframe
+                src="https://www.google.com/maps?q=Jl.%20Muchtar%20Latief,%20Padang%20Sikabu,%20Kec.%20Lamposi%20Tigo%20Nagori,%20Kota%20Payakumbuh,%20Sumatera%20Barat&output=embed"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
 
             </div>
 
@@ -748,90 +841,6 @@
       </section>
 
     </main>
-
-
-    <!-- ================= FOOTER ================= -->
-    <footer class="footer">
-
-      <div class="footer-inner">
-
-        <div class="footer-brand">
-
-          <img
-            :src="logo"
-            alt="Jericho & Nesya"
-          >
-
-          <p>
-            Raw, Organic & Healthy
-          </p>
-
-          <span>
-            Good Ingredients,<br>
-            Brighter Days ♡
-          </span>
-
-        </div>
-
-        <div class="footer-links">
-
-          <h3>Navigasi</h3>
-
-          <button @click="scrollToSection('beranda')">
-            Beranda
-          </button>
-
-          <button @click="scrollToSection('produk')">
-            Produk
-          </button>
-
-          <button @click="scrollToSection('tentang-kami')">
-            Tentang Kami
-          </button>
-
-          <button @click="scrollToSection('cara-pemesanan')">
-            Cara Pemesanan
-          </button>
-
-          <button @click="scrollToSection('kontak')">
-            Kontak
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <!-- ================= FOOTER BOTTOM ================= -->
-      <div class="footer-bottom">
-
-        <div class="footer-signature">
-
-          <span class="signature-line"></span>
-
-          <span class="signature-dot"></span>
-
-          <span class="signature-text">
-            Jericho & Nesya
-          </span>
-
-          <span class="signature-dot"></span>
-
-          <span class="signature-line"></span>
-
-        </div>
-
-        <p>
-          Raw, Organic & Healthy
-        </p>
-
-        <small>
-          © 2026 Jericho & Nesya. All Rights Reserved.
-        </small>
-
-      </div>
-
-    </footer>
 
 
     <!-- ================= PRODUCT MODAL ================= -->
@@ -876,7 +885,9 @@
 
             <div class="quantity">
 
-              <button @click="decreaseQuantity">
+              <button
+                @click="decreaseQuantity"
+              >
                 −
               </button>
 
@@ -884,7 +895,12 @@
                 {{ selectedQuantity }}
               </span>
 
-              <button @click="selectedQuantity++">
+              <button
+                @click="increaseQuantity"
+                :disabled="
+                  selectedQuantity >= selectedProduct.stock
+                "
+              >
                 +
               </button>
 
@@ -893,10 +909,16 @@
 
             <button
               class="modal-add"
+              :disabled="selectedProduct.stock <= 0"
               @click="addSelectedToCart"
             >
               Tambah ke Keranjang -
-              Rp {{ formatPrice(selectedProduct.price * selectedQuantity) }}
+              Rp {{
+                formatPrice(
+                  selectedProduct.price *
+                  selectedQuantity
+                )
+              }}
             </button>
 
           </div>
@@ -925,7 +947,9 @@
               Keranjang
             </h2>
 
-            <button @click="cartOpen = false">
+            <button
+              @click="cartOpen = false"
+            >
               ×
             </button>
 
@@ -950,7 +974,10 @@
             </p>
 
             <button
-              @click="cartOpen = false; scrollToSection('produk')"
+              @click="
+                cartOpen = false;
+                scrollToSection('produk')
+              "
             >
               Lihat Produk
             </button>
@@ -970,9 +997,17 @@
             >
 
               <img
+                v-if="item.image"
                 :src="item.image"
                 :alt="item.name"
               >
+
+              <div
+                v-else
+                class="cart-no-image"
+              >
+                No Image
+              </div>
 
 
               <div class="cart-item-info">
@@ -986,7 +1021,12 @@
                 </p>
 
                 <strong>
-                  Rp {{ formatPrice(item.price * item.quantity) }}
+                  Rp {{
+                    formatPrice(
+                      item.price *
+                      item.quantity
+                    )
+                  }}
                 </strong>
 
               </div>
@@ -1025,7 +1065,12 @@
               </div>
 
 
-              <button class="buy-button">
+              <!-- ================= BELI SEKARANG ================= -->
+              <button
+                type="button"
+                class="buy-button"
+                @click.stop.prevent="goToCheckout"
+              >
                 BELI SEKARANG
               </button>
 
@@ -1044,28 +1089,21 @@
 
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref
+} from 'vue'
+
 import { useRouter } from 'vue-router'
+
+import api from '../api/axios'
 
 import logo from '../assets/images/logo.webp'
 import cakeLogoKanan from '../assets/images/cake-logokanan.jpg'
 import cakeHero1 from '../assets/images/cake-hero1.jpg'
-import brownies from '../assets/images/brownies.jpg'
-import strawberryCake from '../assets/images/strawberry-cake.jpg'
-import matchaCupcake from '../assets/images/matcha-cupcake.jpg'
-import oatmealCookies from '../assets/images/oatmeal-cookies.jpg'
-import chocolateCake from '../assets/images/chocolate-cake.jpg'
-import redVelvetCake from '../assets/images/red-velvet-cake.jpg'
-import tiramisuCake from '../assets/images/tiramisu-cake.jpg'
-import matchaCake from '../assets/images/matcha-cake.jpg'
-import cheeseCake from '../assets/images/cheese-cake.jpg'
-import blackForestCake from '../assets/images/black-forest-cake.jpg'
-import caramelCake from '../assets/images/caramel-cake.jpg'
-import fruitCake from '../assets/images/fruit-cake.jpg'
-import bananaBread from '../assets/images/banana-bread.jpg'
-import carrotCake from '../assets/images/carrot-cake.jpg'
-import blueberryTart from '../assets/images/blueberry-tart.jpg'
-import lemonCake from '../assets/images/lemon-cake.jpg'
+
 
 const router = useRouter()
 
@@ -1073,174 +1111,377 @@ const router = useRouter()
 /* ================= STATE ================= */
 
 const mobileMenuOpen = ref(false)
+
 const showSearch = ref(false)
+
 const searchQuery = ref('')
 
 const cartOpen = ref(false)
 
 const selectedProduct = ref(null)
+
 const selectedQuantity = ref(1)
 
 const activeSection = ref('beranda')
 
 const showAllProducts = ref(false)
 
-
-/* ================= PRODUCTS ================= */
-
-const products = ref([
-  {
-    id: 1,
-    name: 'Brownies Almond',
-    description: 'Brownies dengan almond dan dark chocolate premium.',
-    price: 35000,
-    image: brownies
-  },
-
-  {
-    id: 2,
-    name: 'Strawberry Fresh Cake',
-    description: 'Sponge cake lembut dengan krim segar dan stroberi asli.',
-    price: 80000,
-    image: strawberryCake
-  },
-
-  {
-    id: 3,
-    name: 'Matcha Cupcake',
-    description: 'Cupcake matcha dengan krim lembut, tidak terlalu manis.',
-    price: 25000,
-    image: matchaCupcake
-  },
-
-  {
-    id: 4,
-    name: 'Oatmeal Cookies',
-    description: 'Cookies gandum utuh dengan kismis dan madu alami.',
-    price: 30000,
-    image: oatmealCookies
-  },
-
-  {
-    id: 5,
-    name: 'Chocolate Cake',
-    description: 'Kue cokelat lembut dengan rasa cokelat premium.',
-    price: 70000,
-    image: chocolateCake
-  },
-
-  {
-    id: 6,
-    name: 'Red Velvet Cake',
-    description: 'Red velvet lembut dengan cream cheese yang creamy.',
-    price: 75000,
-    image: redVelvetCake
-  },
-
-  {
-    id: 7,
-    name: 'Tiramisu Cake',
-    description: 'Kue tiramisu lembut dengan rasa kopi yang nikmat.',
-    price: 75000,
-    image: tiramisuCake
-  },
-
-  {
-    id: 8,
-    name: 'Matcha Cake',
-    description: 'Kue matcha lembut dengan aroma teh hijau yang khas.',
-    price: 65000,
-    image: matchaCake
-  },
-
-  {
-    id: 9,
-    name: 'Cheese Cake',
-    description: 'Cheesecake lembut dengan rasa keju yang creamy.',
-    price: 65000,
-    image: cheeseCake
-  },
-
-  {
-    id: 10,
-    name: 'Black Forest Cake',
-    description: 'Kue cokelat dengan krim lembut dan rasa cherry.',
-    price: 70000,
-    image: blackForestCake
-  },
-
-  {
-    id: 11,
-    name: 'Caramel Cake',
-    description: 'Kue lembut dengan saus caramel yang manis dan nikmat.',
-    price: 65000,
-    image: caramelCake
-  },
-
-  {
-    id: 12,
-    name: 'Fruit Cake',
-    description: 'Kue segar dengan topping buah-buahan pilihan.',
-    price: 60000,
-    image: fruitCake
-  },
-
-  {
-    id: 13,
-    name: 'Banana Bread',
-    description: 'Roti pisang lembut dengan aroma pisang yang harum.',
-    price: 45000,
-    image: bananaBread
-  },
-
-  {
-    id: 14,
-    name: 'Carrot Cake',
-    description: 'Kue wortel lembut dengan rasa manis yang pas.',
-    price: 60000,
-    image: carrotCake
-  },
-
-  {
-    id: 15,
-    name: 'Blueberry Tart',
-    description: 'Tart lembut dengan blueberry segar dan rasa manis asam.',
-    price: 55000,
-    image: blueberryTart
-  },
-
-  {
-    id: 16,
-    name: 'Lemon Cake',
-    description: 'Kue lemon lembut dengan rasa segar dan sedikit asam.',
-    price: 55000,
-    image: lemonCake
-  }
-])
-
-
-const extraProducts = computed(() => products.value.slice(4))
-
-
-/* ================= CART ================= */
+const products = ref([])
 
 const cart = ref([])
 
 
-const cartCount = computed(() => {
+/* ================= DATA TOKO ================= */
 
-  return cart.value.reduce((total, item) => {
-    return total + item.quantity
-  }, 0)
+const storeSettings = ref({
+  nama_toko: '',
+  email_toko: '',
+  nomor_telepon: '',
+  alamat_toko: ''
+})
+
+
+let refreshInterval = null
+
+
+/* ================= IMAGE URL ================= */
+
+const getImageUrl = (gambar) => {
+
+  if (!gambar) {
+    return ''
+  }
+
+
+  const backendUrl =
+    api.defaults.baseURL
+      .replace(/\/api\/?$/, '')
+
+
+  // Kalau backend mengirim URL lengkap
+  if (
+    gambar.startsWith('http://') ||
+    gambar.startsWith('https://')
+  ) {
+
+    try {
+
+      const imageUrl =
+        new URL(gambar)
+
+
+      // Ubah localhost / 127.0.0.1
+      // menjadi alamat backend yang sedang dipakai
+      if (
+        imageUrl.hostname === 'localhost' ||
+        imageUrl.hostname === '127.0.0.1'
+      ) {
+
+        return `${backendUrl}${imageUrl.pathname}${imageUrl.search}`
+
+      }
+
+
+      return gambar
+
+    } catch {
+
+      return gambar
+
+    }
+
+  }
+
+
+  // Kalau backend mengirim /uploads/nama.jpg
+  if (
+    gambar.startsWith('/uploads/')
+  ) {
+
+    return `${backendUrl}${gambar}`
+
+  }
+
+
+  // Kalau backend mengirim uploads/nama.jpg
+  if (
+    gambar.startsWith('uploads/')
+  ) {
+
+    return `${backendUrl}/${gambar}`
+
+  }
+
+
+  // Kalau backend hanya mengirim nama file
+  return `${backendUrl}/uploads/${gambar.replace(/^\/+/, '')}`
+
+}
+
+
+/* ================= GET PRODUCTS ================= */
+
+const getProducts = async () => {
+
+  try {
+
+    const response =
+      await api.get('/home/produk')
+
+
+    const responseData =
+      response.data
+
+
+    const productData =
+      Array.isArray(responseData)
+        ? responseData
+        : Array.isArray(responseData?.data)
+          ? responseData.data
+          : []
+
+
+    products.value =
+      productData.map(product => ({
+
+        id:
+          Number(product.id_produk),
+
+        name:
+          product.nama_produk ||
+          'Produk',
+
+        description:
+          product.deskripsi ||
+          'Kue lezat dari Jericho & Nesya.',
+
+        price:
+          Number(product.harga) || 0,
+
+        stock:
+          Number(product.stok) || 0,
+
+        image:
+          getImageUrl(product.gambar),
+
+        terjual:
+          Number(product.terjual) || 0,
+
+        isFavorite:
+          Boolean(product.is_favorite)
+
+      }))
+
+
+    /*
+      Kalau produk yang sedang dibuka modalnya
+      masih ada di data terbaru,
+      update datanya juga.
+    */
+    if (selectedProduct.value) {
+
+      const updatedProduct =
+        products.value.find(
+          product =>
+            product.id ===
+            selectedProduct.value.id
+        )
+
+
+      if (updatedProduct) {
+
+        selectedProduct.value =
+          updatedProduct
+
+
+        if (
+          selectedQuantity.value >
+          updatedProduct.stock
+        ) {
+
+          selectedQuantity.value =
+            Math.max(
+              1,
+              updatedProduct.stock
+            )
+
+        }
+
+      } else {
+
+        selectedProduct.value = null
+
+        selectedQuantity.value = 1
+
+      }
+
+    }
+
+
+    /*
+      Sinkronisasi item yang sudah ada
+      di keranjang dengan data produk
+      terbaru dari backend.
+
+      Ini penting supaya kalau harga produk
+      berubah di Admin, harga di keranjang
+      juga ikut berubah.
+    */
+    cart.value =
+      cart.value
+        .map(item => {
+
+          const updatedProduct =
+            products.value.find(
+              product =>
+                product.id === item.id
+            )
+
+
+          if (!updatedProduct) {
+            return null
+          }
+
+
+          const quantity =
+            Math.min(
+              Number(item.quantity) || 0,
+              updatedProduct.stock
+            )
+
+
+          if (quantity <= 0) {
+            return null
+          }
+
+
+          return {
+            ...updatedProduct,
+            quantity
+          }
+
+        })
+        .filter(Boolean)
+
+
+  } catch (error) {
+
+    console.error(
+      'Gagal mengambil data produk dari API:',
+      error
+    )
+
+  }
+
+}
+
+
+/* ================= GET DATA TOKO ================= */
+
+const getStoreSettings = async () => {
+
+  try {
+
+    const response =
+      await api.get('/store')
+
+
+    console.log(
+      'Data toko dari backend:',
+      response.data
+    )
+
+
+    const toko =
+      response.data?.data
+
+
+    if (!toko) {
+
+      console.error(
+        'Data toko tidak ditemukan.'
+      )
+
+      return
+
+    }
+
+
+    storeSettings.value = {
+
+      nama_toko:
+        toko.nama_toko || '',
+
+      email_toko:
+        toko.email_toko || '',
+
+      nomor_telepon:
+        toko.nomor_telepon || '',
+
+      alamat_toko:
+        toko.alamat_toko || ''
+
+    }
+
+
+    console.log(
+      'Data toko Home:',
+      storeSettings.value
+    )
+
+
+  } catch (error) {
+
+    console.error(
+      'Gagal mengambil data toko:',
+      error
+    )
+
+  }
+
+}
+
+
+/* ================= EXTRA PRODUCTS ================= */
+
+const extraProducts = computed(() => {
+
+  return products.value.slice(4)
 
 })
 
 
+/* ================= CART COUNT ================= */
+
+const cartCount = computed(() => {
+
+  return cart.value.reduce(
+    (total, item) => {
+
+      return total +
+        Number(item.quantity || 0)
+
+    },
+    0
+  )
+
+})
+
+
+/* ================= CART TOTAL ================= */
+
 const cartTotal = computed(() => {
 
-  return cart.value.reduce((total, item) => {
-    return total + item.price * item.quantity
-  }, 0)
+  return cart.value.reduce(
+    (total, item) => {
+
+      return total +
+        Number(item.price || 0) *
+        Number(item.quantity || 0)
+
+    },
+    0
+  )
 
 })
 
@@ -1249,19 +1490,29 @@ const cartTotal = computed(() => {
 
 const filteredProducts = computed(() => {
 
-  const query = searchQuery.value
-    .toLowerCase()
-    .trim()
+  const query =
+    searchQuery.value
+      .toLowerCase()
+      .trim()
+
 
   if (query) {
-    return products.value.filter(product =>
-      product.name
-        .toLowerCase()
-        .includes(query)
+
+    return products.value.filter(
+      product => {
+
+        return product.name
+          .toLowerCase()
+          .includes(query)
+
+      }
     )
+
   }
 
+
   return products.value.slice(0, 4)
+
 })
 
 
@@ -1269,7 +1520,11 @@ const filteredProducts = computed(() => {
 
 const formatPrice = (price) => {
 
-  return new Intl.NumberFormat('id-ID').format(price)
+  return new Intl.NumberFormat(
+    'id-ID'
+  ).format(
+    Number(price) || 0
+  )
 
 }
 
@@ -1278,14 +1533,18 @@ const formatPrice = (price) => {
 
 const scrollToSection = (id) => {
 
-  const section = document.getElementById(id)
+  const section =
+    document.getElementById(id)
 
 
   if (section) {
 
     section.scrollIntoView({
+
       behavior: 'smooth',
+
       block: 'start'
+
     })
 
   }
@@ -1296,6 +1555,7 @@ const scrollToSection = (id) => {
 const mobileNavigate = (id) => {
 
   mobileMenuOpen.value = false
+
 
   setTimeout(() => {
 
@@ -1317,7 +1577,7 @@ const goToLogin = () => {
 }
 
 
-/* ================= PRODUCT ================= */
+/* ================= PRODUCT MODAL ================= */
 
 const openProduct = (product) => {
 
@@ -1330,9 +1590,30 @@ const openProduct = (product) => {
 
 const decreaseQuantity = () => {
 
-  if (selectedQuantity.value > 1) {
+  if (
+    selectedQuantity.value > 1
+  ) {
 
     selectedQuantity.value--
+
+  }
+
+}
+
+
+const increaseQuantity = () => {
+
+  if (!selectedProduct.value) {
+    return
+  }
+
+
+  if (
+    selectedQuantity.value <
+    selectedProduct.value.stock
+  ) {
+
+    selectedQuantity.value++
 
   }
 
@@ -1343,47 +1624,98 @@ const decreaseQuantity = () => {
 
 const addToCart = (product) => {
 
-  const existing = cart.value.find(
-    item => item.id === product.id
-  )
+  if (
+    !product ||
+    product.stock <= 0
+  ) {
+
+    return
+
+  }
+
+
+  const existing =
+    cart.value.find(
+      item =>
+        item.id === product.id
+    )
 
 
   if (existing) {
 
-    existing.quantity++
+    if (
+      existing.quantity <
+      product.stock
+    ) {
 
-  } else {
+      existing.quantity++
 
-    cart.value.push({
-      ...product,
-      quantity: 1
-    })
+    }
+
+    return
 
   }
 
+
+  cart.value.push({
+
+    ...product,
+
+    quantity: 1
+
+  })
 
 }
 
 
 const addSelectedToCart = () => {
 
-  if (!selectedProduct.value) return
+  if (!selectedProduct.value) {
+    return
+  }
 
 
-  const existing = cart.value.find(
-    item => item.id === selectedProduct.value.id
-  )
+  if (
+    selectedProduct.value.stock <= 0
+  ) {
+
+    return
+
+  }
+
+
+  const existing =
+    cart.value.find(
+      item =>
+        item.id ===
+        selectedProduct.value.id
+    )
 
 
   if (existing) {
 
-    existing.quantity += selectedQuantity.value
+    existing.quantity =
+      Math.min(
+
+        existing.quantity +
+        selectedQuantity.value,
+
+        selectedProduct.value.stock
+
+      )
 
   } else {
 
     cart.value.push({
+
       ...selectedProduct.value,
-      quantity: selectedQuantity.value
+
+      quantity:
+        Math.min(
+          selectedQuantity.value,
+          selectedProduct.value.stock
+        )
+
     })
 
   }
@@ -1398,9 +1730,72 @@ const addSelectedToCart = () => {
 
 const removeFromCart = (id) => {
 
-  cart.value = cart.value.filter(
-    item => item.id !== id
+  cart.value =
+    cart.value.filter(
+      item => item.id !== id
+    )
+
+}
+
+
+/* ================= CHECKOUT ================= */
+
+const goToCheckout = async () => {
+
+  console.log(
+    'BELI SEKARANG DIKLIK'
   )
+
+  console.log(
+    'Cart:',
+    cart.value
+  )
+
+
+  // Pastikan keranjang tidak kosong
+  if (!cart.value.length) {
+
+    alert(
+      'Keranjang masih kosong.'
+    )
+
+    return
+
+  }
+
+
+  // Simpan isi keranjang
+  // agar bisa dibaca Checkout.vue
+  localStorage.setItem(
+    'checkout_cart',
+    JSON.stringify(cart.value)
+  )
+
+
+  // Tutup cart drawer
+  cartOpen.value = false
+
+
+  // Pindah ke halaman checkout
+  await router.push('/checkout')
+
+}
+
+
+/* ================= VISIBILITY / FOCUS ================= */
+
+const handleVisibilityChange = () => {
+
+  if (
+    document.visibilityState ===
+    'visible'
+  ) {
+
+    getProducts()
+
+    getStoreSettings()
+
+  }
 
 }
 
@@ -1410,11 +1805,17 @@ const removeFromCart = (id) => {
 const handleScroll = () => {
 
   const sections = [
+
     'beranda',
+
     'produk',
+
     'tentang-kami',
+
     'cara-pemesanan',
+
     'kontak'
+
   ]
 
 
@@ -1428,10 +1829,14 @@ const handleScroll = () => {
       document.getElementById(id)
 
 
-    if (!section) continue
+    if (!section) {
+      continue
+    }
 
 
-    const top = section.offsetTop
+    const top =
+      section.offsetTop
+
 
     const bottom =
       top + section.offsetHeight
@@ -1453,19 +1858,94 @@ const handleScroll = () => {
 }
 
 
+/* ================= MOUNT ================= */
+
 onMounted(() => {
 
+  // Ambil data produk pertama kali
+  getProducts()
+
+
+  // Ambil data pengaturan toko pertama kali
+  getStoreSettings()
+
+
+  /*
+    Update produk dan data toko
+    otomatis setiap 10 detik.
+  */
+  refreshInterval =
+    setInterval(() => {
+
+      getProducts()
+
+      getStoreSettings()
+
+    }, 10000)
+
+
+  // Kalau user kembali ke tab/window Home
+  window.addEventListener(
+    'focus',
+    getProducts
+  )
+
+  window.addEventListener(
+    'focus',
+    getStoreSettings
+  )
+
+
+  document.addEventListener(
+    'visibilitychange',
+    handleVisibilityChange
+  )
+
+
+  // Scroll navbar
   window.addEventListener(
     'scroll',
     handleScroll
   )
+
 
   handleScroll()
 
 })
 
 
+/* ================= UNMOUNT ================= */
+
 onUnmounted(() => {
+
+  if (refreshInterval) {
+
+    clearInterval(
+      refreshInterval
+    )
+
+    refreshInterval = null
+
+  }
+
+
+  window.removeEventListener(
+    'focus',
+    getProducts
+  )
+
+
+  window.removeEventListener(
+    'focus',
+    getStoreSettings
+  )
+
+
+  document.removeEventListener(
+    'visibilitychange',
+    handleVisibilityChange
+  )
+
 
   window.removeEventListener(
     'scroll',
@@ -1473,6 +1953,7 @@ onUnmounted(() => {
   )
 
 })
+
 </script>
 
 
@@ -1550,12 +2031,23 @@ button {
 
   z-index: 1000;
 
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(
+    255,
+    255,
+    255,
+    0.97
+  );
 
   border-radius: 28px;
 
   box-shadow:
-    0 8px 30px rgba(50, 50, 50, 0.06);
+    0 8px 30px
+    rgba(
+      50,
+      50,
+      50,
+      0.06
+    );
 
 }
 
@@ -2042,7 +2534,12 @@ main {
 
   font-family: Georgia, serif;
 
-  font-size: clamp(48px, 5vw, 72px);
+  font-size:
+    clamp(
+      48px,
+      5vw,
+      72px
+    );
 
   line-height: 0.98;
 
@@ -2113,7 +2610,8 @@ main {
 
   background: #1d7121;
 
-  transform: translateY(-2px);
+  transform:
+    translateY(-2px);
 
 }
 
@@ -2211,7 +2709,11 @@ main {
 
   background: #eff5dc;
 
-  border-radius: 45% 0 0 45%;
+  border-radius:
+    45%
+    0
+    0
+    45%;
 
 }
 
@@ -2220,7 +2722,11 @@ main {
 
   position: relative;
 
-  width: min(90%, 570px);
+  width:
+    min(
+      90%,
+      570px
+    );
 
   max-width: 100%;
 
@@ -2229,7 +2735,15 @@ main {
   z-index: 2;
 
   filter:
-    drop-shadow(0 20px 20px rgba(0,0,0,0.12));
+    drop-shadow(
+      0 20px 20px
+      rgba(
+        0,
+        0,
+        0,
+        0.12
+      )
+    );
 
 }
 
@@ -2267,7 +2781,12 @@ main {
 
   font-family: Georgia, serif;
 
-  font-size: clamp(34px, 4vw, 48px);
+  font-size:
+    clamp(
+      34px,
+      4vw,
+      48px
+    );
 
   margin-bottom: 8px;
 
@@ -2308,7 +2827,11 @@ main {
 
   display: grid;
 
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns:
+    repeat(
+      4,
+      1fr
+    );
 
   gap: 16px;
 
@@ -2328,17 +2851,30 @@ main {
   transition: 0.25s ease;
 
   box-shadow:
-    0 4px 15px rgba(0,0,0,0.03);
+    0 4px 15px
+    rgba(
+      0,
+      0,
+      0,
+      0.03
+    );
 
 }
 
 
 .product-card:hover {
 
-  transform: translateY(-5px);
+  transform:
+    translateY(-5px);
 
   box-shadow:
-    0 12px 30px rgba(0,0,0,0.08);
+    0 12px 30px
+    rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
 
 }
 
@@ -2347,13 +2883,16 @@ main {
 
   width: 100%;
 
-  aspect-ratio: 1 / 0.9;
+  aspect-ratio:
+    1 / 0.9;
 
   overflow: hidden;
 
   border-radius: 20px;
 
   cursor: pointer;
+
+  background: #f3f3f3;
 
 }
 
@@ -2373,14 +2912,37 @@ main {
 
 .product-image:hover img {
 
-  transform: scale(1.05);
+  transform:
+    scale(1.05);
+
+}
+
+
+.no-product-image {
+
+  width: 100%;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #999;
+
+  font-size: 12px;
 
 }
 
 
 .product-info {
 
-  padding: 12px 4px 3px;
+  padding:
+    12px
+    4px
+    3px;
 
 }
 
@@ -2454,9 +3016,22 @@ main {
 
 .add-button:hover {
 
-  background: var(--green-dark);
+  background:
+    var(--green-dark);
 
-  transform: scale(1.08);
+  transform:
+    scale(1.08);
+
+}
+
+
+.add-button:disabled {
+
+  opacity: 0.45;
+
+  cursor: not-allowed;
+
+  transform: none;
 
 }
 
@@ -2503,7 +3078,8 @@ main {
 
   background: #2d8131;
 
-  transform: translateY(-2px);
+  transform:
+    translateY(-2px);
 
 }
 
@@ -2529,7 +3105,8 @@ main {
 
   padding-top: 40px;
 
-  border-top: 1px solid #e8e8e8;
+  border-top:
+    1px solid #e8e8e8;
 
 }
 
@@ -2549,7 +3126,8 @@ main {
 
   font-size: 32px;
 
-  color: var(--green-dark);
+  color:
+    var(--green-dark);
 
   margin-bottom: 7px;
 
@@ -2595,7 +3173,8 @@ main {
 
   display: grid;
 
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns:
+    0.9fr 1.1fr;
 
   align-items: center;
 
@@ -2626,13 +3205,20 @@ main {
 
   font-family: Georgia, serif;
 
-  color: var(--green-dark);
+  color:
+    var(--green-dark);
 
-  font-size: clamp(42px, 5vw, 65px);
+  font-size:
+    clamp(
+      42px,
+      5vw,
+      65px
+    );
 
   line-height: 1;
 
-  margin: 10px 0 25px;
+  margin:
+    10px 0 25px;
 
 }
 
@@ -2644,7 +3230,8 @@ main {
 }
 
 
-.about-content > p:not(.section-label) {
+.about-content >
+p:not(.section-label) {
 
   color: #555;
 
@@ -2722,7 +3309,11 @@ main {
 
   display: grid;
 
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns:
+    repeat(
+      4,
+      1fr
+    );
 
   gap: 20px;
 
@@ -2737,7 +3328,8 @@ main {
 
   border-radius: 25px;
 
-  border: 1px solid #eee;
+  border:
+    1px solid #eee;
 
 }
 
@@ -2785,18 +3377,19 @@ main {
 
   padding: 80px 30px;
 
-  background: var(--pink-light);
+  background:
+    var(--pink-light);
 
 }
 
 
 .contact-card {
 
-  max-width: 1100px;
+  max-width: 1150px;
 
   margin: auto;
 
-  padding: 55px;
+  padding: 45px;
 
   background: #fff;
 
@@ -2804,40 +3397,21 @@ main {
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    0.9fr 1.1fr;
 
-  gap: 60px;
+  gap: 55px;
 
-}
-
-
-.contact-card h2 {
-
-  font-family: Georgia, serif;
-
-  color: var(--green-dark);
-
-  font-size: 45px;
-
-  line-height: 1.05;
-
-  margin: 12px 0 20px;
+  align-items: stretch;
 
 }
 
 
-.contact-card > div:first-child > p:last-child {
+/* =====================================================
+   CONTACT MAIN
+===================================================== */
 
-  color: #666;
-
-  max-width: 450px;
-
-  line-height: 1.7;
-
-}
-
-
-.contact-info {
+.contact-main {
 
   display: flex;
 
@@ -2845,7 +3419,51 @@ main {
 
   justify-content: center;
 
-  gap: 20px;
+}
+
+
+.contact-main h2 {
+
+  font-family: Georgia, serif;
+
+  color:
+    var(--green-dark);
+
+  font-size: 42px;
+
+  line-height: 1.05;
+
+  margin:
+    12px 0 20px;
+
+}
+
+
+.contact-main >
+p:not(.section-label) {
+
+  color: #666;
+
+  max-width: 450px;
+
+  line-height: 1.7;
+
+  margin-bottom: 25px;
+
+}
+
+
+/* =====================================================
+   CONTACT INFO
+===================================================== */
+
+.contact-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
 
 }
 
@@ -2867,7 +3485,10 @@ main {
 
   height: 45px;
 
-  background: var(--green-light);
+  flex-shrink: 0;
+
+  background:
+    var(--green-light);
 
   color: var(--green);
 
@@ -2886,6 +3507,10 @@ main {
 
   color: #888;
 
+  font-size: 11px;
+
+  margin-bottom: 3px;
+
 }
 
 
@@ -2895,117 +3520,88 @@ main {
 
   font-size: 14px;
 
+  line-height: 1.5;
+
+  color: #222;
+
+  word-break: break-word;
+
 }
 
 
 /* =====================================================
-   FOOTER
+   GOOGLE MAPS
 ===================================================== */
 
-.footer {
+.contact-map {
 
-  background: #fff;
+  min-height: 400px;
 
-  padding: 50px 40px 20px;
+  padding: 18px;
 
-}
+  background: #fafaf7;
 
+  border:
+    1px solid #eeeeea;
 
-.footer-inner {
+  border-radius: 25px;
 
-  max-width: 1100px;
-
-  margin: auto;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  gap: 50px;
-
-}
-
-
-.footer-brand img {
-
-  width: 150px;
-
-  max-width: 100%;
+  box-shadow:
+    0 12px 35px
+    rgba(
+      80,
+      80,
+      60,
+      0.05
+    );
 
 }
 
 
-.footer-brand p {
+.map-header {
 
-  color: #888;
-
-  font-size: 11px;
-
-}
-
-
-.footer-brand span {
-
-  display: block;
-
-  color: var(--green);
-
-  font-family: Georgia, serif;
-
-  font-style: italic;
-
-  margin-top: 15px;
+  padding:
+    4px
+    8px
+    15px;
 
 }
 
 
-/* ================= KENAPA KAMI ================= */
+.map-label {
 
-.footer-why {
+  margin: 0 0 4px;
 
-  flex: 1;
+  color: #9ca594;
 
-  max-width: 360px;
-
-}
-
-
-.footer-why h3 {
-
-  margin: 0 0 14px;
-
-  font-size: 17px;
+  font-size: 9px;
 
   font-weight: 800;
 
-}
-
-
-.footer-why-item {
-
-  margin-bottom: 12px;
+  letter-spacing: 2px;
 
 }
 
 
-.footer-why-item strong {
+.map-header h3 {
 
-  display: block;
+  margin: 0 0 5px;
 
-  color: #444;
+  color:
+    var(--green-dark);
 
-  font-size: 12px;
+  font-family: Georgia, serif;
 
-  margin-bottom: 3px;
+  font-size: 25px;
 
 }
 
 
-.footer-why-item p {
+.map-address {
 
   margin: 0;
 
-  color: #888;
+  color: #92988d;
 
   font-size: 11px;
 
@@ -3014,151 +3610,30 @@ main {
 }
 
 
-.footer-links {
+.map-container {
 
-  display: flex;
+  width: 100%;
 
-  flex-direction: column;
+  height: 285px;
 
-  gap: 7px;
+  overflow: hidden;
 
-}
+  border-radius: 17px;
 
-
-.footer-links h3 {
-
-  margin-bottom: 5px;
+  background: #eef2e6;
 
 }
 
 
-.footer-links button {
+.map-container iframe {
 
-  border: 0;
+  width: 100%;
 
-  background: transparent;
-
-  padding: 0;
-
-  text-align: left;
-
-  color: #666;
-
-  font-size: 13px;
-
-}
-
-
-.footer-links button:hover {
-
-  color: var(--green);
-
-}
-
-
-/* =====================================================
-   FOOTER BOTTOM - BARU
-===================================================== */
-
-.footer-bottom {
-
-  max-width: 1100px;
-
-  margin: 40px auto 0;
-
-  padding-top: 24px;
-
-  border-top: 1px solid #eee;
-
-  text-align: center;
-
-}
-
-
-/* GARIS + NAMA BRAND */
-
-.footer-signature {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 10px;
-
-  margin-bottom: 10px;
-
-}
-
-
-.signature-line {
-
-  width: 55px;
-
-  height: 1px;
-
-  background: #dfe5d9;
-
-}
-
-
-.signature-dot {
-
-  width: 5px;
-
-  height: 5px;
-
-  border-radius: 50%;
-
-  background: var(--green);
-
-}
-
-
-.signature-text {
-
-  color: var(--green-dark);
-
-  font-family: Georgia, serif;
-
-  font-size: 14px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.5px;
-
-}
-
-
-/* TAGLINE */
-
-.footer-bottom p {
-
-  margin: 0 0 7px;
-
-  color: #999;
-
-  font-family: Georgia, serif;
-
-  font-size: 11px;
-
-  font-style: italic;
-
-}
-
-
-/* COPYRIGHT */
-
-.footer-bottom small {
+  height: 100%;
 
   display: block;
 
-  color: #aaa;
-
-  font-size: 10px;
-
-  letter-spacing: 0.2px;
+  border: 0;
 
 }
 
@@ -3175,7 +3650,13 @@ main {
 
   z-index: 2000;
 
-  background: rgba(0,0,0,0.45);
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.45
+    );
 
   display: flex;
 
@@ -3188,7 +3669,11 @@ main {
 
   position: relative;
 
-  width: min(560px, 100%);
+  width:
+    min(
+      560px,
+      100%
+    );
 
   height: 100%;
 
@@ -3307,6 +3792,15 @@ main {
 }
 
 
+.quantity button:disabled {
+
+  opacity: 0.4;
+
+  cursor: not-allowed;
+
+}
+
+
 .quantity span {
 
   font-size: 24px;
@@ -3333,6 +3827,15 @@ main {
 }
 
 
+.modal-add:disabled {
+
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+}
+
+
 /* =====================================================
    CART DRAWER
 ===================================================== */
@@ -3345,7 +3848,13 @@ main {
 
   z-index: 2500;
 
-  background: rgba(0,0,0,0.35);
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.35
+    );
 
   display: flex;
 
@@ -3356,7 +3865,15 @@ main {
 
 .cart-drawer {
 
-  width: min(480px, 100%);
+  position: relative;
+
+  z-index: 2501;
+
+  width:
+    min(
+      480px,
+      100%
+    );
 
   height: 100%;
 
@@ -3446,7 +3963,8 @@ main {
 
   border: 0;
 
-  background: var(--green);
+  background:
+    var(--green);
 
   color: white;
 
@@ -3469,12 +3987,14 @@ main {
 
   margin-bottom: 20px;
 
-  border-bottom: 1px solid #eee;
+  border-bottom:
+    1px solid #eee;
 
 }
 
 
-.cart-item img {
+.cart-item img,
+.cart-no-image {
 
   width: 105px;
 
@@ -3483,6 +4003,25 @@ main {
   object-fit: cover;
 
   border-radius: 20px;
+
+  flex-shrink: 0;
+
+}
+
+
+.cart-no-image {
+
+  background: #f3f3f3;
+
+  color: #999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 11px;
 
 }
 
@@ -3588,17 +4127,52 @@ main {
 }
 
 
+/* =====================================================
+   BELI SEKARANG
+===================================================== */
+
 .buy-button {
+
+  position: relative;
+
+  z-index: 10;
+
+  pointer-events: auto;
 
   border: 0;
 
   background: #ffb7b7;
+
+  color: #171717;
 
   padding: 14px 20px;
 
   border-radius: 12px;
 
   font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    0.2s ease;
+
+}
+
+
+.buy-button:hover {
+
+  background: #f39d9e;
+
+  transform:
+    translateY(-2px);
+
+}
+
+
+.buy-button:active {
+
+  transform:
+    translateY(0);
 
 }
 
@@ -3634,7 +4208,8 @@ main {
 .drawer-enter-from .cart-drawer,
 .drawer-leave-to .cart-drawer {
 
-  transform: translateX(100%);
+  transform:
+    translateX(100%);
 
 }
 
@@ -3652,7 +4227,8 @@ main {
 
   opacity: 0;
 
-  transform: translateY(-10px);
+  transform:
+    translateY(-10px);
 
 }
 
@@ -3670,7 +4246,8 @@ main {
 
   opacity: 0;
 
-  transform: translateY(-15px);
+  transform:
+    translateY(-15px);
 
 }
 
@@ -3745,14 +4322,41 @@ main {
 
   .products-container {
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
 
   }
 
 
   .steps {
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
+
+  }
+
+
+  .contact-card {
+
+    grid-template-columns:
+      1fr 1fr;
+
+    gap: 30px;
+
+    padding: 35px;
+
+  }
+
+
+  .contact-main h2 {
+
+    font-size: 36px;
 
   }
 
@@ -3806,7 +4410,11 @@ main {
 
     min-height: 68px;
 
-    padding: 7px 10px 7px 18px;
+    padding:
+      7px
+      10px
+      7px
+      18px;
 
   }
 
@@ -3900,9 +4508,13 @@ main {
 
     gap: 5px;
 
-    padding: 10px 15px 18px;
+    padding:
+      10px
+      15px
+      18px;
 
-    border-top: 1px solid #eee;
+    border-top:
+      1px solid #eee;
 
   }
 
@@ -3926,7 +4538,8 @@ main {
 
   .mobile-nav a:hover {
 
-    background: var(--green-light);
+    background:
+      var(--green-light);
 
     color: var(--green);
 
@@ -3937,7 +4550,10 @@ main {
 
   .search-area {
 
-    padding: 0 15px 14px;
+    padding:
+      0
+      15px
+      14px;
 
   }
 
@@ -3946,11 +4562,18 @@ main {
 
   .hero {
 
-    width: calc(100% - 10px);
+    width:
+      calc(
+        100% - 10px
+      );
 
     margin: 0 5px;
 
-    border-radius: 0 0 25px 25px;
+    border-radius:
+      0
+      0
+      25px
+      25px;
 
   }
 
@@ -3963,7 +4586,10 @@ main {
 
     flex-direction: column;
 
-    padding: 45px 25px 25px;
+    padding:
+      45px
+      25px
+      25px;
 
   }
 
@@ -4075,7 +4701,10 @@ main {
 
   .section-heading {
 
-    padding: 55px 20px 25px;
+    padding:
+      55px
+      20px
+      25px;
 
   }
 
@@ -4102,9 +4731,17 @@ main {
 
     width: 100%;
 
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
 
-    padding: 0 12px;
+    padding:
+      0 12px;
 
     gap: 10px;
 
@@ -4176,7 +4813,9 @@ main {
 
     font-size: 12px;
 
-    padding: 11px 25px;
+    padding:
+      11px
+      25px;
 
   }
 
@@ -4208,7 +4847,9 @@ main {
 
   .about-section {
 
-    padding: 60px 20px;
+    padding:
+      60px
+      20px;
 
   }
 
@@ -4242,7 +4883,9 @@ main {
 
     grid-template-columns: 1fr;
 
-    padding: 10px 20px;
+    padding:
+      10px
+      20px;
 
   }
 
@@ -4251,14 +4894,17 @@ main {
 
   .contact-section {
 
-    padding: 55px 15px;
+    padding:
+      55px
+      15px;
 
   }
 
 
   .contact-card {
 
-    padding: 30px 25px;
+    padding:
+      25px;
 
     grid-template-columns: 1fr;
 
@@ -4269,64 +4915,56 @@ main {
   }
 
 
-  .contact-card h2 {
+  .contact-main h2 {
 
     font-size: 38px;
 
   }
 
 
-  /* FOOTER */
+  .contact-main >
+  p:not(.section-label) {
 
-  .footer {
-
-    padding: 40px 25px 20px;
-
-  }
-
-
-  .footer-inner {
-
-    flex-direction: column;
+    font-size: 13px;
 
   }
 
 
-  /* FOOTER BOTTOM */
+  .contact-item strong {
 
-  .footer-bottom {
-
-    margin-top: 30px;
-
-    padding-top: 20px;
+    font-size: 13px;
 
   }
 
 
-  .signature-line {
+  .contact-map {
 
-    width: 35px;
+    min-height: auto;
 
-  }
+    padding: 14px;
 
-
-  .signature-text {
-
-    font-size: 12px;
+    border-radius: 20px;
 
   }
 
 
-  .footer-bottom p {
+  .map-container {
+
+    height: 260px;
+
+  }
+
+
+  .map-header h3 {
+
+    font-size: 22px;
+
+  }
+
+
+  .map-address {
 
     font-size: 10px;
-
-  }
-
-
-  .footer-bottom small {
-
-    font-size: 9px;
 
   }
 
@@ -4356,6 +4994,24 @@ main {
     width: 100%;
 
     padding: 22px;
+
+  }
+
+
+  .cart-total {
+
+    align-items: center;
+
+  }
+
+
+  .buy-button {
+
+    padding:
+      13px
+      16px;
+
+    font-size: 12px;
 
   }
 
@@ -4450,7 +5106,8 @@ main {
 
   .products-container {
 
-    padding: 0 9px;
+    padding:
+      0 9px;
 
     gap: 8px;
 
@@ -4473,23 +5130,55 @@ main {
   }
 
 
-  /* FOOTER BOTTOM */
+  /* CONTACT */
 
-  .footer-signature {
+  .contact-card {
 
-    gap: 7px;
-
-  }
-
-
-  .signature-line {
-
-    width: 25px;
+    padding: 20px;
 
   }
 
 
-  .signature-text {
+  .contact-main h2 {
+
+    font-size: 32px;
+
+  }
+
+
+  .contact-item strong {
+
+    font-size: 12px;
+
+  }
+
+
+  .contact-map {
+
+    padding: 10px;
+
+  }
+
+
+  .map-container {
+
+    height: 230px;
+
+  }
+
+
+  .cart-total {
+
+    gap: 10px;
+
+  }
+
+
+  .buy-button {
+
+    padding:
+      12px
+      13px;
 
     font-size: 11px;
 
@@ -4498,7 +5187,9 @@ main {
 }
 
 
-/* Mencegah scroll horizontal di semua ukuran layar */
+/* =====================================================
+   GLOBAL HORIZONTAL SCROLL FIX
+===================================================== */
 
 :global(html),
 :global(body),

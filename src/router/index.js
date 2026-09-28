@@ -9,6 +9,9 @@ import Pesanan from '../views/Pesanan.vue'
 import HistoryPelanggan from '../views/HistoryPelanggan.vue'
 import Pengaturan from '../views/Pengaturan.vue'
 
+// ================= USER =================
+import Checkout from '../views/Checkout.vue'
+
 const routes = [
 
   // ================= USER =================
@@ -17,6 +20,12 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home
+  },
+
+  {
+    path: '/checkout',
+    name: 'checkout',
+    component: Checkout
   },
 
   // ================= ADMIN / PETUGAS =================

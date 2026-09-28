@@ -100,7 +100,7 @@ const getImageUrl = (image) => {
     return ''
   }
 
-  const BACKEND_URL = 'http://192.168.69.11:8081'
+  const BACKEND_URL = 'http://192.168.69.111:8081'
 
   // Kalau backend mengirim URL localhost
   if (image.startsWith('http://localhost:8081')) {
