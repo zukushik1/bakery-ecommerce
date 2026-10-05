@@ -90,7 +90,7 @@
           <button
             class="icon-button cart-button"
             title="Keranjang"
-            @click="cartOpen = true"
+            @click="openCart"
           >
             <svg viewBox="0 0 24 24">
               <path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H6"></path>
@@ -122,7 +122,10 @@
       </div>
 
       <!-- SEARCH BAR -->
-      <div v-if="showSearch" class="search-area">
+      <div
+        v-if="showSearch"
+        class="search-area"
+      >
 
         <div class="search-box">
 
@@ -195,7 +198,7 @@
             class="mobile-login"
             @click="goToLogin"
           >
-            👤 Login Admin/Petugas
+            Login Admin/Petugas
           </button>
 
         </div>
@@ -312,7 +315,6 @@
         </div>
 
 
-        <!-- PRODUK -->
         <div class="products-container">
 
           <div
@@ -384,7 +386,7 @@
         </div>
 
 
-        <!-- PRODUK TIDAK DITEMUKAN -->
+        <!-- TIDAK DITEMUKAN -->
         <div
           v-if="filteredProducts.length === 0"
           class="empty-product"
@@ -393,7 +395,7 @@
         </div>
 
 
-        <!-- TOMBOL LIHAT SEMUA -->
+        <!-- LIHAT SEMUA -->
         <button
           v-if="!showAllProducts && !searchQuery"
           class="all-products-button"
@@ -403,7 +405,6 @@
         </button>
 
 
-        <!-- TOMBOL SEMBUNYIKAN -->
         <button
           v-else-if="!searchQuery"
           class="all-products-button"
@@ -479,7 +480,6 @@
                     <strong>
                       Rp {{ formatPrice(product.price) }}
                     </strong>
-
 
                     <button
                       class="add-button"
@@ -603,90 +603,58 @@
         <div class="steps">
 
           <div class="step">
-
-            <div class="step-number">
-              01
-            </div>
+            <div class="step-number">01</div>
 
             <div>
-
-              <h3>
-                Pilih Produk
-              </h3>
+              <h3>Pilih Produk</h3>
 
               <p>
                 Pilih kue yang ingin kamu pesan dari berbagai
                 produk yang tersedia.
               </p>
-
             </div>
-
           </div>
 
 
           <div class="step">
-
-            <div class="step-number">
-              02
-            </div>
+            <div class="step-number">02</div>
 
             <div>
-
-              <h3>
-                Masukkan Keranjang
-              </h3>
+              <h3>Masukkan Keranjang</h3>
 
               <p>
                 Tentukan jumlah produk lalu masukkan ke
                 keranjang belanja.
               </p>
-
             </div>
-
           </div>
 
 
           <div class="step">
-
-            <div class="step-number">
-              03
-            </div>
+            <div class="step-number">03</div>
 
             <div>
-
-              <h3>
-                Lakukan Pemesanan
-              </h3>
+              <h3>Lakukan Pemesanan</h3>
 
               <p>
                 Periksa kembali pesanan kemudian lanjutkan
                 ke proses pembelian.
               </p>
-
             </div>
-
           </div>
 
 
           <div class="step">
-
-            <div class="step-number">
-              04
-            </div>
+            <div class="step-number">04</div>
 
             <div>
-
-              <h3>
-                Pesanan Diproses
-              </h3>
+              <h3>Pesanan Diproses</h3>
 
               <p>
                 Pesanan kamu akan diproses dan disiapkan
                 oleh tim Jericho & Nesya.
               </p>
-
             </div>
-
           </div>
 
         </div>
@@ -702,7 +670,6 @@
 
         <div class="contact-card">
 
-          <!-- INFO KONTAK -->
           <div class="contact-main">
 
             <p class="section-label">
@@ -719,20 +686,16 @@
               informasi di bawah ini.
             </p>
 
-            <!-- TELEPON -->
+
             <div class="contact-info">
 
               <div class="contact-item">
 
-                <span>
-                  ☎
-                </span>
+                <span>☎</span>
 
                 <div>
 
-                  <small>
-                    Telepon
-                  </small>
+                  <small>Telepon</small>
 
                   <strong>
                     {{
@@ -746,18 +709,13 @@
               </div>
 
 
-              <!-- EMAIL -->
               <div class="contact-item">
 
-                <span>
-                  ✉
-                </span>
+                <span>✉</span>
 
                 <div>
 
-                  <small>
-                    Email
-                  </small>
+                  <small>Email</small>
 
                   <strong>
                     {{
@@ -771,18 +729,13 @@
               </div>
 
 
-              <!-- ALAMAT -->
               <div class="contact-item">
 
-                <span>
-                  ⌂
-                </span>
+                <span>⌂</span>
 
                 <div>
 
-                  <small>
-                    Alamat
-                  </small>
+                  <small>Alamat</small>
 
                   <strong>
                     {{
@@ -885,9 +838,7 @@
 
             <div class="quantity">
 
-              <button
-                @click="decreaseQuantity"
-              >
+              <button @click="decreaseQuantity">
                 −
               </button>
 
@@ -930,8 +881,10 @@
     </Transition>
 
 
-    <!-- ================= CART DRAWER ================= -->
-    <Transition name="drawer">
+    <!-- =================================================
+         CART POPUP
+    ================================================== -->
+    <Transition name="cart-popup">
 
       <div
         v-if="cartOpen"
@@ -939,15 +892,23 @@
         @click.self="cartOpen = false"
       >
 
-        <aside class="cart-drawer">
+        <div class="cart-popup">
 
+          <!-- HEADER -->
           <div class="cart-header">
 
-            <h2>
-              Keranjang
-            </h2>
+            <div>
+              <p class="cart-label">
+                KERANJANG BELANJA
+              </p>
+
+              <h2>
+                Keranjang
+              </h2>
+            </div>
 
             <button
+              class="cart-close"
               @click="cartOpen = false"
             >
               ×
@@ -956,6 +917,7 @@
           </div>
 
 
+          <!-- EMPTY -->
           <div
             v-if="cart.length === 0"
             class="empty-cart"
@@ -974,6 +936,7 @@
             </p>
 
             <button
+              class="empty-cart-button"
               @click="
                 cartOpen = false;
                 scrollToSection('produk')
@@ -985,77 +948,107 @@
           </div>
 
 
+          <!-- CART CONTENT -->
           <div
             v-else
             class="cart-content"
           >
 
-            <div
-              v-for="item in cart"
-              :key="item.id"
-              class="cart-item"
-            >
-
-              <img
-                v-if="item.image"
-                :src="item.image"
-                :alt="item.name"
-              >
+            <div class="cart-items">
 
               <div
-                v-else
-                class="cart-no-image"
+                v-for="item in cart"
+                :key="item.id"
+                class="cart-item"
               >
-                No Image
+
+                <!-- IMAGE -->
+                <img
+                  v-if="item.image"
+                  :src="item.image"
+                  :alt="item.name"
+                >
+
+                <div
+                  v-else
+                  class="cart-no-image"
+                >
+                  No Image
+                </div>
+
+
+                <!-- INFO -->
+                <div class="cart-item-info">
+
+                  <h3>
+                    {{ item.name }}
+                  </h3>
+
+                  <p>
+                    Rp {{ formatPrice(item.price) }}
+                  </p>
+
+
+                  <div class="cart-item-bottom">
+
+                    <div class="quantity-control">
+
+                      <button
+                        @click="decreaseCartQuantity(item)"
+                      >
+                        −
+                      </button>
+
+                      <span>
+                        {{ item.quantity }}
+                      </span>
+
+                      <button
+                        :disabled="
+                          item.quantity >= item.stock
+                        "
+                        @click="increaseCartQuantity(item)"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                    <strong>
+                      Rp {{
+                        formatPrice(
+                          item.price *
+                          item.quantity
+                        )
+                      }}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <!-- DELETE -->
+                <button
+                  class="remove-item"
+                  title="Hapus produk"
+                  @click="removeFromCart(item.id)"
+                >
+                  ×
+                </button>
+
               </div>
-
-
-              <div class="cart-item-info">
-
-                <h3>
-                  {{ item.name }}
-                </h3>
-
-                <p>
-                  Qty: {{ item.quantity }}
-                </p>
-
-                <strong>
-                  Rp {{
-                    formatPrice(
-                      item.price *
-                      item.quantity
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <button
-                class="remove-item"
-                @click="removeFromCart(item.id)"
-              >
-                ×
-              </button>
 
             </div>
 
 
-            <button
-              class="continue-shopping"
-              @click="cartOpen = false"
-            >
-              LANJUT BELANJA
-            </button>
+            <!-- FOOTER -->
+            <div class="cart-footer">
 
-
-            <div class="cart-total">
-
-              <div>
+              <div class="cart-total">
 
                 <span>
-                  Total
+                  Total Pesanan
                 </span>
 
                 <strong>
@@ -1065,20 +1058,31 @@
               </div>
 
 
-              <!-- ================= BELI SEKARANG ================= -->
-              <button
-                type="button"
-                class="buy-button"
-                @click.stop.prevent="goToCheckout"
-              >
-                BELI SEKARANG
-              </button>
+              <div class="cart-actions">
+
+                <button
+                  class="continue-shopping"
+                  @click="cartOpen = false"
+                >
+                  LANJUT BELANJA
+                </button>
+
+
+                <button
+                  type="button"
+                  class="buy-button"
+                  @click="goToCheckout"
+                >
+                  BELI SEKARANG
+                </button>
+
+              </div>
 
             </div>
 
           </div>
 
-        </aside>
+        </div>
 
       </div>
 
@@ -1111,23 +1115,14 @@ const router = useRouter()
 /* ================= STATE ================= */
 
 const mobileMenuOpen = ref(false)
-
 const showSearch = ref(false)
-
 const searchQuery = ref('')
-
 const cartOpen = ref(false)
-
 const selectedProduct = ref(null)
-
 const selectedQuantity = ref(1)
-
 const activeSection = ref('beranda')
-
 const showAllProducts = ref(false)
-
 const products = ref([])
-
 const cart = ref([])
 
 
@@ -1152,13 +1147,11 @@ const getImageUrl = (gambar) => {
     return ''
   }
 
-
   const backendUrl =
     api.defaults.baseURL
       .replace(/\/api\/?$/, '')
 
 
-  // Kalau backend mengirim URL lengkap
   if (
     gambar.startsWith('http://') ||
     gambar.startsWith('https://')
@@ -1169,9 +1162,6 @@ const getImageUrl = (gambar) => {
       const imageUrl =
         new URL(gambar)
 
-
-      // Ubah localhost / 127.0.0.1
-      // menjadi alamat backend yang sedang dipakai
       if (
         imageUrl.hostname === 'localhost' ||
         imageUrl.hostname === '127.0.0.1'
@@ -1180,7 +1170,6 @@ const getImageUrl = (gambar) => {
         return `${backendUrl}${imageUrl.pathname}${imageUrl.search}`
 
       }
-
 
       return gambar
 
@@ -1193,7 +1182,6 @@ const getImageUrl = (gambar) => {
   }
 
 
-  // Kalau backend mengirim /uploads/nama.jpg
   if (
     gambar.startsWith('/uploads/')
   ) {
@@ -1203,7 +1191,6 @@ const getImageUrl = (gambar) => {
   }
 
 
-  // Kalau backend mengirim uploads/nama.jpg
   if (
     gambar.startsWith('uploads/')
   ) {
@@ -1213,13 +1200,12 @@ const getImageUrl = (gambar) => {
   }
 
 
-  // Kalau backend hanya mengirim nama file
   return `${backendUrl}/uploads/${gambar.replace(/^\/+/, '')}`
 
 }
 
 
-/* ================= GET PRODUCTS ================= */
+/* ================= PRODUCTS ================= */
 
 const getProducts = async () => {
 
@@ -1273,11 +1259,6 @@ const getProducts = async () => {
       }))
 
 
-    /*
-      Kalau produk yang sedang dibuka modalnya
-      masih ada di data terbaru,
-      update datanya juga.
-    */
     if (selectedProduct.value) {
 
       const updatedProduct =
@@ -1310,7 +1291,6 @@ const getProducts = async () => {
       } else {
 
         selectedProduct.value = null
-
         selectedQuantity.value = 1
 
       }
@@ -1319,13 +1299,8 @@ const getProducts = async () => {
 
 
     /*
-      Sinkronisasi item yang sudah ada
-      di keranjang dengan data produk
+      Sinkronisasi cart dengan data
       terbaru dari backend.
-
-      Ini penting supaya kalau harga produk
-      berubah di Admin, harga di keranjang
-      juga ikut berubah.
     */
     cart.value =
       cart.value
@@ -1376,7 +1351,7 @@ const getProducts = async () => {
 }
 
 
-/* ================= GET DATA TOKO ================= */
+/* ================= STORE ================= */
 
 const getStoreSettings = async () => {
 
@@ -1386,24 +1361,12 @@ const getStoreSettings = async () => {
       await api.get('/store')
 
 
-    console.log(
-      'Data toko dari backend:',
-      response.data
-    )
-
-
     const toko =
       response.data?.data
 
 
     if (!toko) {
-
-      console.error(
-        'Data toko tidak ditemukan.'
-      )
-
       return
-
     }
 
 
@@ -1422,12 +1385,6 @@ const getStoreSettings = async () => {
         toko.alamat_toko || ''
 
     }
-
-
-    console.log(
-      'Data toko Home:',
-      storeSettings.value
-    )
 
 
   } catch (error) {
@@ -1499,13 +1456,10 @@ const filteredProducts = computed(() => {
   if (query) {
 
     return products.value.filter(
-      product => {
-
-        return product.name
+      product =>
+        product.name
           .toLowerCase()
           .includes(query)
-
-      }
     )
 
   }
@@ -1540,11 +1494,8 @@ const scrollToSection = (id) => {
   if (section) {
 
     section.scrollIntoView({
-
       behavior: 'smooth',
-
       block: 'start'
-
     })
 
   }
@@ -1556,11 +1507,8 @@ const mobileNavigate = (id) => {
 
   mobileMenuOpen.value = false
 
-
   setTimeout(() => {
-
     scrollToSection(id)
-
   }, 100)
 
 }
@@ -1582,7 +1530,6 @@ const goToLogin = () => {
 const openProduct = (product) => {
 
   selectedProduct.value = product
-
   selectedQuantity.value = 1
 
 }
@@ -1620,7 +1567,7 @@ const increaseQuantity = () => {
 }
 
 
-/* ================= CART ================= */
+/* ================= ADD CART ================= */
 
 const addToCart = (product) => {
 
@@ -1722,17 +1669,67 @@ const addSelectedToCart = () => {
 
 
   selectedProduct.value = null
-
   selectedQuantity.value = 1
 
 }
 
 
+/* ================= CART POPUP ================= */
+
+const openCart = () => {
+
+  cartOpen.value = true
+
+}
+
+
+/* ================= CART QUANTITY ================= */
+
+const increaseCartQuantity = (item) => {
+
+  if (!item) {
+    return
+  }
+
+
+  if (
+    item.quantity <
+    item.stock
+  ) {
+
+    item.quantity++
+
+  }
+
+}
+
+
+const decreaseCartQuantity = (item) => {
+
+  if (!item) {
+    return
+  }
+
+
+  if (item.quantity > 1) {
+
+    item.quantity++
+
+    item.quantity -= 2
+
+  }
+
+}
+
+
+/* ================= REMOVE CART ================= */
+
 const removeFromCart = (id) => {
 
   cart.value =
     cart.value.filter(
-      item => item.id !== id
+      item =>
+        item.id !== id
     )
 
 }
@@ -1742,47 +1739,28 @@ const removeFromCart = (id) => {
 
 const goToCheckout = async () => {
 
-  console.log(
-    'BELI SEKARANG DIKLIK'
-  )
-
-  console.log(
-    'Cart:',
-    cart.value
-  )
-
-
-  // Pastikan keranjang tidak kosong
   if (!cart.value.length) {
-
-    alert(
-      'Keranjang masih kosong.'
-    )
 
     return
 
   }
 
 
-  // Simpan isi keranjang
-  // agar bisa dibaca Checkout.vue
   localStorage.setItem(
     'checkout_cart',
     JSON.stringify(cart.value)
   )
 
 
-  // Tutup cart drawer
   cartOpen.value = false
 
 
-  // Pindah ke halaman checkout
   await router.push('/checkout')
 
 }
 
 
-/* ================= VISIBILITY / FOCUS ================= */
+/* ================= VISIBILITY ================= */
 
 const handleVisibilityChange = () => {
 
@@ -1792,7 +1770,6 @@ const handleVisibilityChange = () => {
   ) {
 
     getProducts()
-
     getStoreSettings()
 
   }
@@ -1805,17 +1782,11 @@ const handleVisibilityChange = () => {
 const handleScroll = () => {
 
   const sections = [
-
     'beranda',
-
     'produk',
-
     'tentang-kami',
-
     'cara-pemesanan',
-
     'kontak'
-
   ]
 
 
@@ -1836,7 +1807,6 @@ const handleScroll = () => {
 
     const top =
       section.offsetTop
-
 
     const bottom =
       top + section.offsetHeight
@@ -1862,33 +1832,25 @@ const handleScroll = () => {
 
 onMounted(() => {
 
-  // Ambil data produk pertama kali
   getProducts()
 
-
-  // Ambil data pengaturan toko pertama kali
   getStoreSettings()
 
 
-  /*
-    Update produk dan data toko
-    otomatis setiap 10 detik.
-  */
   refreshInterval =
     setInterval(() => {
 
       getProducts()
-
       getStoreSettings()
 
     }, 10000)
 
 
-  // Kalau user kembali ke tab/window Home
   window.addEventListener(
     'focus',
     getProducts
   )
+
 
   window.addEventListener(
     'focus',
@@ -1902,7 +1864,6 @@ onMounted(() => {
   )
 
 
-  // Scroll navbar
   window.addEventListener(
     'scroll',
     handleScroll
@@ -1979,39 +1940,29 @@ onUnmounted(() => {
   --muted: #686868;
 
   min-height: 100vh;
-
   background: var(--pink-light);
-
   color: var(--text);
 
   width: 100%;
-
   max-width: 100%;
-
   overflow-x: hidden;
 
 }
 
 
 * {
-
   box-sizing: border-box;
-
 }
 
 
 button,
 a {
-
   font-family: inherit;
-
 }
 
 
 button {
-
   cursor: pointer;
-
 }
 
 
@@ -2024,19 +1975,18 @@ button {
   position: fixed;
 
   top: 14px;
-
   left: 14px;
-
   right: 14px;
 
   z-index: 1000;
 
-  background: rgba(
-    255,
-    255,
-    255,
-    0.97
-  );
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.97
+    );
 
   border-radius: 28px;
 
@@ -2053,9 +2003,7 @@ button {
 
 
 main {
-
   padding-top: 102px;
-
 }
 
 
@@ -2088,17 +2036,13 @@ main {
 
   align-items: center;
 
-  cursor: default;
-
 }
 
 
 .logo img {
 
   width: 100%;
-
   height: auto;
-
   display: block;
 
 }
@@ -2174,7 +2118,6 @@ main {
   position: relative;
 
   width: 42px;
-
   height: 42px;
 
   border: 0;
@@ -2205,7 +2148,6 @@ main {
 .login-button svg {
 
   width: 22px;
-
   height: 22px;
 
   fill: none;
@@ -2222,7 +2164,7 @@ main {
 
 
 /* =====================================================
-   LOGIN BUTTON
+   LOGIN
 ===================================================== */
 
 .login-button {
@@ -2246,8 +2188,6 @@ main {
   padding: 0 8px;
 
   border-radius: 22px;
-
-  transition: 0.2s ease;
 
 }
 
@@ -2279,11 +2219,9 @@ main {
   position: absolute;
 
   top: 1px;
-
   right: 1px;
 
   min-width: 17px;
-
   height: 17px;
 
   padding: 0 4px;
@@ -2346,7 +2284,6 @@ main {
 .search-box svg {
 
   width: 20px;
-
   height: 20px;
 
   fill: none;
@@ -2393,7 +2330,6 @@ main {
 .hamburger {
 
   width: 44px;
-
   height: 44px;
 
   border: 0;
@@ -2416,7 +2352,6 @@ main {
 .hamburger span {
 
   width: 23px;
-
   height: 2px;
 
   background: var(--green);
@@ -2497,7 +2432,11 @@ main {
 
   background: var(--cream);
 
-  border-radius: 0 0 35px 35px;
+  border-radius:
+    0
+    0
+    35px
+    35px;
 
   overflow: hidden;
 
@@ -2510,7 +2449,8 @@ main {
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   align-items: center;
 
@@ -2592,8 +2532,6 @@ main {
 
   font-weight: 700;
 
-  transition: 0.2s ease;
-
 }
 
 
@@ -2610,9 +2548,6 @@ main {
 
   background: #1d7121;
 
-  transform:
-    translateY(-2px);
-
 }
 
 
@@ -2621,13 +2556,6 @@ main {
   background: #fff0ef;
 
   color: #444;
-
-}
-
-
-.btn-secondary:hover {
-
-  background: #f9d7d5;
 
 }
 
@@ -2657,7 +2585,6 @@ main {
 .feature-icon {
 
   width: 34px;
-
   height: 34px;
 
   border: 1px solid var(--green);
@@ -2702,7 +2629,6 @@ main {
   position: absolute;
 
   width: 100%;
-
   height: 78%;
 
   right: -5%;
@@ -2733,17 +2659,6 @@ main {
   object-fit: contain;
 
   z-index: 2;
-
-  filter:
-    drop-shadow(
-      0 20px 20px
-      rgba(
-        0,
-        0,
-        0,
-        0.12
-      )
-    );
 
 }
 
@@ -2867,15 +2782,6 @@ main {
   transform:
     translateY(-5px);
 
-  box-shadow:
-    0 12px 30px
-    rgba(
-      0,
-      0,
-      0,
-      0.08
-    );
-
 }
 
 
@@ -2900,7 +2806,6 @@ main {
 .product-image img {
 
   width: 100%;
-
   height: 100%;
 
   object-fit: cover;
@@ -2921,13 +2826,11 @@ main {
 .no-product-image {
 
   width: 100%;
-
   height: 100%;
 
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
   color: #999;
@@ -2994,7 +2897,6 @@ main {
 .add-button {
 
   width: 35px;
-
   height: 35px;
 
   border: 0;
@@ -3007,10 +2909,6 @@ main {
 
   place-items: center;
 
-  transition: 0.2s ease;
-
-  flex-shrink: 0;
-
 }
 
 
@@ -3018,9 +2916,6 @@ main {
 
   background:
     var(--green-dark);
-
-  transform:
-    scale(1.08);
 
 }
 
@@ -3031,15 +2926,12 @@ main {
 
   cursor: not-allowed;
 
-  transform: none;
-
 }
 
 
 .add-button svg {
 
   width: 17px;
-
   height: 17px;
 
   fill: none;
@@ -3069,18 +2961,6 @@ main {
 
   font-weight: 700;
 
-  transition: 0.2s ease;
-
-}
-
-
-.all-products-button:hover {
-
-  background: #2d8131;
-
-  transform:
-    translateY(-2px);
-
 }
 
 
@@ -3094,10 +2974,6 @@ main {
 
 }
 
-
-/* =====================================================
-   ALL PRODUCTS
-===================================================== */
 
 .all-products-area {
 
@@ -3129,8 +3005,6 @@ main {
   color:
     var(--green-dark);
 
-  margin-bottom: 7px;
-
 }
 
 
@@ -3139,13 +3013,6 @@ main {
   color: #777;
 
   font-size: 13px;
-
-}
-
-
-.extra-products {
-
-  margin-top: 0;
 
 }
 
@@ -3407,10 +3274,6 @@ p:not(.section-label) {
 }
 
 
-/* =====================================================
-   CONTACT MAIN
-===================================================== */
-
 .contact-main {
 
   display: flex;
@@ -3453,10 +3316,6 @@ p:not(.section-label) {
 }
 
 
-/* =====================================================
-   CONTACT INFO
-===================================================== */
-
 .contact-info {
 
   display: flex;
@@ -3482,7 +3341,6 @@ p:not(.section-label) {
 .contact-item > span {
 
   width: 45px;
-
   height: 45px;
 
   flex-shrink: 0;
@@ -3530,7 +3388,7 @@ p:not(.section-label) {
 
 
 /* =====================================================
-   GOOGLE MAPS
+   MAP
 ===================================================== */
 
 .contact-map {
@@ -3545,15 +3403,6 @@ p:not(.section-label) {
     1px solid #eeeeea;
 
   border-radius: 25px;
-
-  box-shadow:
-    0 12px 35px
-    rgba(
-      80,
-      80,
-      60,
-      0.05
-    );
 
 }
 
@@ -3628,7 +3477,6 @@ p:not(.section-label) {
 .map-container iframe {
 
   width: 100%;
-
   height: 100%;
 
   display: block;
@@ -3691,11 +3539,9 @@ p:not(.section-label) {
   position: absolute;
 
   top: 25px;
-
   right: 25px;
 
   width: 38px;
-
   height: 38px;
 
   border: 0;
@@ -3705,8 +3551,6 @@ p:not(.section-label) {
   background: #ffb7b7;
 
   font-size: 24px;
-
-  z-index: 2;
 
 }
 
@@ -3778,7 +3622,6 @@ p:not(.section-label) {
 .quantity button {
 
   width: 42px;
-
   height: 42px;
 
   border: 0;
@@ -3827,17 +3670,8 @@ p:not(.section-label) {
 }
 
 
-.modal-add:disabled {
-
-  opacity: 0.5;
-
-  cursor: not-allowed;
-
-}
-
-
 /* =====================================================
-   CART DRAWER
+   CART POPUP
 ===================================================== */
 
 .cart-overlay {
@@ -3850,38 +3684,53 @@ p:not(.section-label) {
 
   background:
     rgba(
-      0,
-      0,
-      0,
-      0.35
+      24,
+      30,
+      25,
+      0.48
     );
 
   display: flex;
 
-  justify-content: flex-end;
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  backdrop-filter: blur(3px);
 
 }
 
 
-.cart-drawer {
+.cart-popup {
 
   position: relative;
 
-  z-index: 2501;
-
   width:
     min(
-      480px,
+      620px,
       100%
     );
 
-  height: 100%;
+  max-height: 85vh;
 
-  background: #fff;
+  background: #ffffff;
 
-  padding: 30px;
+  border-radius: 25px;
 
-  overflow-y: auto;
+  padding: 28px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 25px 70px
+    rgba(
+      0,
+      0,
+      0,
+      0.18
+    );
 
 }
 
@@ -3890,87 +3739,173 @@ p:not(.section-label) {
 
   display: flex;
 
-  justify-content: space-between;
-
   align-items: center;
 
-  margin-bottom: 30px;
+  justify-content: space-between;
+
+  padding-bottom: 20px;
+
+  border-bottom:
+    1px solid #eeeeee;
+
+}
+
+
+.cart-label {
+
+  margin: 0 0 4px;
+
+  color: var(--green);
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
 
 }
 
 
 .cart-header h2 {
 
+  margin: 0;
+
+  color: var(--green-dark);
+
   font-family: Georgia, serif;
 
-  font-size: 35px;
+  font-size: 30px;
 
 }
 
 
-.cart-header button {
+.cart-close {
 
   width: 40px;
-
   height: 40px;
 
   border: 0;
 
   border-radius: 50%;
 
-  background: #ffb7b7;
+  background: #ffe1e1;
 
-  font-size: 25px;
+  color: #444;
+
+  font-size: 24px;
+
+  transition: 0.2s ease;
 
 }
 
+
+.cart-close:hover {
+
+  background: #ffb7b7;
+
+  transform: rotate(90deg);
+
+}
+
+
+/* =====================================================
+   EMPTY CART
+===================================================== */
 
 .empty-cart {
 
   text-align: center;
 
-  padding-top: 100px;
+  padding:
+    55px
+    20px
+    35px;
 
 }
 
 
 .empty-cart-icon {
 
-  font-size: 45px;
+  width: 75px;
+  height: 75px;
 
-  margin-bottom: 15px;
+  margin:
+    0
+    auto
+    20px;
+
+  border-radius: 50%;
+
+  background: var(--green-light);
+
+  display: grid;
+
+  place-items: center;
+
+  font-size: 32px;
 
 }
 
 
 .empty-cart h3 {
 
-  margin-bottom: 5px;
+  margin: 0 0 8px;
+
+  color: #333;
 
 }
 
 
 .empty-cart p {
 
+  margin: 0 0 22px;
+
   color: #888;
 
-  margin-bottom: 20px;
+  font-size: 13px;
 
 }
 
 
-.empty-cart button {
+.empty-cart-button {
 
   border: 0;
 
-  background:
-    var(--green);
+  background: var(--green);
 
-  color: white;
+  color: #fff;
 
-  padding: 12px 25px;
+  padding:
+    12px
+    25px;
 
-  border-radius: 20px;
+  border-radius: 22px;
+
+  font-weight: 700;
+
+}
+
+
+/* =====================================================
+   CART CONTENT
+===================================================== */
+
+.cart-content {
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+.cart-items {
+
+  max-height: 48vh;
+
+  overflow-y: auto;
+
+  padding-right: 5px;
 
 }
 
@@ -3983,12 +3918,12 @@ p:not(.section-label) {
 
   gap: 15px;
 
-  padding-bottom: 20px;
-
-  margin-bottom: 20px;
+  padding:
+    18px
+    5px;
 
   border-bottom:
-    1px solid #eee;
+    1px solid #eeeeee;
 
 }
 
@@ -3996,13 +3931,12 @@ p:not(.section-label) {
 .cart-item img,
 .cart-no-image {
 
-  width: 105px;
-
-  height: 105px;
+  width: 90px;
+  height: 90px;
 
   object-fit: cover;
 
-  border-radius: 20px;
+  border-radius: 17px;
 
   flex-shrink: 0;
 
@@ -4037,59 +3971,144 @@ p:not(.section-label) {
 
 .cart-item-info h3 {
 
-  font-size: 16px;
+  margin:
+    0
+    0
+    5px;
 
-  margin-bottom: 3px;
+  color: #303030;
+
+  font-size: 16px;
 
 }
 
 
-.cart-item-info p {
+.cart-item-info > p {
 
-  font-size: 12px;
+  margin:
+    0
+    0
+    12px;
 
   color: #777;
 
-  margin-bottom: 10px;
+  font-size: 12px;
 
 }
 
 
-.cart-item-info strong {
+.cart-item-bottom {
 
-  font-size: 15px;
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+}
+
+
+.cart-item-bottom strong {
+
+  color: var(--green-dark);
+
+  font-size: 14px;
+
+}
+
+
+.quantity-control {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border:
+    1px solid #e4e4e4;
+
+  border-radius: 10px;
+
+  padding: 3px;
+
+}
+
+
+.quantity-control button {
+
+  width: 27px;
+  height: 27px;
+
+  border: 0;
+
+  border-radius: 7px;
+
+  background: #f3f5f2;
+
+  color: var(--green-dark);
+
+  font-size: 17px;
+
+}
+
+
+.quantity-control button:disabled {
+
+  opacity: 0.35;
+
+  cursor: not-allowed;
+
+}
+
+
+.quantity-control span {
+
+  min-width: 22px;
+
+  text-align: center;
+
+  font-size: 12px;
+
+  font-weight: 700;
 
 }
 
 
 .remove-item {
 
+  width: 30px;
+  height: 30px;
+
   border: 0;
 
   background: transparent;
 
-  font-size: 22px;
+  color: #999;
 
-  height: 30px;
+  font-size: 21px;
+
+  flex-shrink: 0;
 
 }
 
 
-.continue-shopping {
+.remove-item:hover {
 
-  width: 100%;
+  color: #d66d6d;
 
-  border: 0;
+}
 
-  background: #e9e9e9;
 
-  padding: 14px;
+/* =====================================================
+   CART FOOTER
+===================================================== */
 
-  border-radius: 13px;
+.cart-footer {
 
-  font-weight: 700;
-
-  margin-bottom: 25px;
+  padding-top: 20px;
 
 }
 
@@ -4098,46 +4117,68 @@ p:not(.section-label) {
 
   display: flex;
 
+  align-items: center;
+
   justify-content: space-between;
 
-  align-items: end;
-
-  gap: 15px;
+  margin-bottom: 18px;
 
 }
 
 
 .cart-total span {
 
-  display: block;
+  color: #888;
 
-  color: #aaa;
+  font-size: 13px;
 
 }
 
 
 .cart-total strong {
 
-  display: block;
+  color: var(--green-dark);
 
   font-family: Georgia, serif;
 
-  font-size: 22px;
+  font-size: 23px;
 
 }
 
 
-/* =====================================================
-   BELI SEKARANG
-===================================================== */
+.cart-actions {
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+}
+
+
+.continue-shopping {
+
+  width: 100%;
+
+  border: 1px solid #ddd;
+
+  background: #f3f3f3;
+
+  color: #444;
+
+  padding: 14px;
+
+  border-radius: 12px;
+
+  font-weight: 700;
+
+}
+
 
 .buy-button {
 
-  position: relative;
-
-  z-index: 10;
-
-  pointer-events: auto;
+  width: 100%;
 
   border: 0;
 
@@ -4151,10 +4192,7 @@ p:not(.section-label) {
 
   font-weight: 800;
 
-  cursor: pointer;
-
-  transition:
-    0.2s ease;
+  transition: 0.2s ease;
 
 }
 
@@ -4169,16 +4207,48 @@ p:not(.section-label) {
 }
 
 
-.buy-button:active {
+/* =====================================================
+   CART POPUP ANIMATION
+===================================================== */
+
+.cart-popup-enter-active,
+.cart-popup-leave-active {
+
+  transition: 0.25s ease;
+
+}
+
+
+.cart-popup-enter-active .cart-popup,
+.cart-popup-leave-active .cart-popup {
+
+  transition: 0.3s ease;
+
+}
+
+
+.cart-popup-enter-from,
+.cart-popup-leave-to {
+
+  opacity: 0;
+
+}
+
+
+.cart-popup-enter-from .cart-popup,
+.cart-popup-leave-to .cart-popup {
+
+  opacity: 0;
 
   transform:
-    translateY(0);
+    translateY(20px)
+    scale(0.96);
 
 }
 
 
 /* =====================================================
-   ANIMATIONS
+   OTHER ANIMATIONS
 ===================================================== */
 
 .fade-enter-active,
@@ -4193,23 +4263,6 @@ p:not(.section-label) {
 .fade-leave-to {
 
   opacity: 0;
-
-}
-
-
-.drawer-enter-active,
-.drawer-leave-active {
-
-  transition: 0.3s ease;
-
-}
-
-
-.drawer-enter-from .cart-drawer,
-.drawer-leave-to .cart-drawer {
-
-  transform:
-    translateX(100%);
 
 }
 
@@ -4263,7 +4316,6 @@ p:not(.section-label) {
     top: 10px;
 
     left: 10px;
-
     right: 10px;
 
   }
@@ -4285,7 +4337,9 @@ p:not(.section-label) {
 
   .desktop-nav a {
 
-    padding: 10px 8px;
+    padding:
+      10px
+      8px;
 
     font-size: 11px;
 
@@ -4294,7 +4348,9 @@ p:not(.section-label) {
 
   .nav-inner {
 
-    padding: 10px 20px;
+    padding:
+      10px
+      20px;
 
   }
 
@@ -4388,8 +4444,6 @@ p:not(.section-label) {
 
     right: 5px;
 
-    margin: 0;
-
     border-radius: 20px;
 
   }
@@ -4398,10 +4452,6 @@ p:not(.section-label) {
   main {
 
     padding-top: 76px;
-
-    width: 100%;
-
-    max-width: 100%;
 
   }
 
@@ -4447,17 +4497,7 @@ p:not(.section-label) {
   .icon-button {
 
     width: 38px;
-
     height: 38px;
-
-  }
-
-
-  .icon-button svg {
-
-    width: 20px;
-
-    height: 20px;
 
   }
 
@@ -4465,19 +4505,9 @@ p:not(.section-label) {
   .login-button {
 
     width: 38px;
-
     height: 38px;
 
     padding: 0;
-
-  }
-
-
-  .login-button svg {
-
-    width: 20px;
-
-    height: 20px;
 
   }
 
@@ -4497,8 +4527,6 @@ p:not(.section-label) {
 
   }
 
-
-  /* MOBILE MENU */
 
   .mobile-nav {
 
@@ -4529,24 +4557,35 @@ p:not(.section-label) {
 
     font-weight: 700;
 
-    padding: 12px 14px;
+    padding:
+      12px
+      14px;
 
     border-radius: 12px;
 
   }
 
 
-  .mobile-nav a:hover {
+  .mobile-login {
 
-    background:
-      var(--green-light);
+    border: 0;
 
-    color: var(--green);
+    background: var(--green-light);
+
+    color: var(--green-dark);
+
+    padding: 13px 14px;
+
+    border-radius: 12px;
+
+    text-align: left;
+
+    font-size: 14px;
+
+    font-weight: 800;
 
   }
 
-
-  /* SEARCH */
 
   .search-area {
 
@@ -4567,7 +4606,9 @@ p:not(.section-label) {
         100% - 10px
       );
 
-    margin: 0 5px;
+    margin:
+      0
+      5px;
 
     border-radius:
       0
@@ -4652,29 +4693,11 @@ p:not(.section-label) {
   }
 
 
-  .feature-icon {
-
-    width: 30px;
-
-    height: 30px;
-
-  }
-
-
-  .hero-features p {
-
-    font-size: 9px;
-
-  }
-
-
   .hero-image {
 
     min-height: 300px;
 
     width: 100%;
-
-    max-width: 100%;
 
   }
 
@@ -4692,12 +4715,10 @@ p:not(.section-label) {
 
     width: 100%;
 
-    max-width: 100%;
-
   }
 
 
-  /* SECTIONS */
+  /* SECTION */
 
   .section-heading {
 
@@ -4718,15 +4739,6 @@ p:not(.section-label) {
 
   /* PRODUCTS */
 
-  .products-section {
-
-    width: 100%;
-
-    overflow-x: hidden;
-
-  }
-
-
   .products-container {
 
     width: 100%;
@@ -4741,7 +4753,8 @@ p:not(.section-label) {
       );
 
     padding:
-      0 12px;
+      0
+      12px;
 
     gap: 10px;
 
@@ -4749,10 +4762,6 @@ p:not(.section-label) {
 
 
   .product-card {
-
-    width: 100%;
-
-    min-width: 0;
 
     padding: 9px;
 
@@ -4794,7 +4803,6 @@ p:not(.section-label) {
   .add-button {
 
     width: 29px;
-
     height: 29px;
 
   }
@@ -4803,42 +4811,7 @@ p:not(.section-label) {
   .add-button svg {
 
     width: 14px;
-
     height: 14px;
-
-  }
-
-
-  .all-products-button {
-
-    font-size: 12px;
-
-    padding:
-      11px
-      25px;
-
-  }
-
-
-  .all-products-area {
-
-    margin-top: 40px;
-
-    padding-top: 30px;
-
-  }
-
-
-  .all-products-title h3 {
-
-    font-size: 27px;
-
-  }
-
-
-  .all-products-title p {
-
-    font-size: 11px;
 
   }
 
@@ -4922,21 +4895,6 @@ p:not(.section-label) {
   }
 
 
-  .contact-main >
-  p:not(.section-label) {
-
-    font-size: 13px;
-
-  }
-
-
-  .contact-item strong {
-
-    font-size: 13px;
-
-  }
-
-
   .contact-map {
 
     min-height: auto;
@@ -4955,21 +4913,7 @@ p:not(.section-label) {
   }
 
 
-  .map-header h3 {
-
-    font-size: 22px;
-
-  }
-
-
-  .map-address {
-
-    font-size: 10px;
-
-  }
-
-
-  /* MODAL */
+  /* PRODUCT MODAL */
 
   .product-modal {
 
@@ -4987,31 +4931,92 @@ p:not(.section-label) {
   }
 
 
-  /* CART */
+  /* CART POPUP */
 
-  .cart-drawer {
+  .cart-overlay {
+
+    padding:
+      12px;
+
+  }
+
+
+  .cart-popup {
 
     width: 100%;
 
-    padding: 22px;
-
-  }
-
-
-  .cart-total {
-
-    align-items: center;
-
-  }
-
-
-  .buy-button {
+    max-height: 90vh;
 
     padding:
-      13px
-      16px;
+      20px;
 
-    font-size: 12px;
+    border-radius: 22px;
+
+  }
+
+
+  .cart-header h2 {
+
+    font-size: 27px;
+
+  }
+
+
+  .cart-items {
+
+    max-height: 52vh;
+
+  }
+
+
+  .cart-item {
+
+    gap: 10px;
+
+  }
+
+
+  .cart-item img,
+  .cart-no-image {
+
+    width: 72px;
+    height: 72px;
+
+    border-radius: 13px;
+
+  }
+
+
+  .cart-item-info h3 {
+
+    font-size: 14px;
+
+  }
+
+
+  .cart-item-bottom {
+
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+  }
+
+
+  .cart-actions {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .buy-button,
+  .continue-shopping {
+
+    padding:
+      13px;
 
   }
 
@@ -5027,7 +5032,6 @@ p:not(.section-label) {
   .navbar {
 
     left: 4px;
-
     right: 4px;
 
   }
@@ -5052,7 +5056,6 @@ p:not(.section-label) {
   .icon-button {
 
     width: 34px;
-
     height: 34px;
 
   }
@@ -5061,17 +5064,7 @@ p:not(.section-label) {
   .login-button {
 
     width: 34px;
-
     height: 34px;
-
-  }
-
-
-  .login-button svg {
-
-    width: 18px;
-
-    height: 18px;
 
   }
 
@@ -5107,7 +5100,8 @@ p:not(.section-label) {
   .products-container {
 
     padding:
-      0 9px;
+      0
+      9px;
 
     gap: 8px;
 
@@ -5120,17 +5114,6 @@ p:not(.section-label) {
 
   }
 
-
-  .product-info {
-
-    padding-left: 2px;
-
-    padding-right: 2px;
-
-  }
-
-
-  /* CONTACT */
 
   .contact-card {
 
@@ -5167,20 +5150,26 @@ p:not(.section-label) {
   }
 
 
-  .cart-total {
+  .cart-popup {
 
-    gap: 10px;
+    padding:
+      17px;
 
   }
 
 
-  .buy-button {
+  .cart-item img,
+  .cart-no-image {
 
-    padding:
-      12px
-      13px;
+    width: 62px;
+    height: 62px;
 
-    font-size: 11px;
+  }
+
+
+  .cart-total strong {
+
+    font-size: 20px;
 
   }
 

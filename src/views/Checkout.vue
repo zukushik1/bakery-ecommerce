@@ -281,8 +281,29 @@
           Terima kasih sudah berbelanja di Jericho & Nesya.
         </p>
 
+        <!-- ID PESANAN -->
+        <div
+          v-if="orderIds.length"
+          class="order-id-box"
+        >
+          <span>ID Pesanan</span>
+
+          <strong>
+            {{ formattedOrderIds }}
+          </strong>
+        </div>
+
+        <!-- WHATSAPP -->
         <button
-          class="primary-button"
+          class="whatsapp-button"
+          @click="openWhatsApp"
+        >
+          Lanjut Chat WhatsApp
+        </button>
+
+        <!-- HOME -->
+        <button
+          class="primary-button secondary-button"
           @click="goHome"
         >
           KEMBALI KE BERANDA
@@ -328,6 +349,15 @@ const loading = ref(false)
 const errorMessage = ref('')
 const showSuccess = ref(false)
 
+// ID PESANAN YANG BERHASIL DIBUAT
+const orderIds = ref([])
+
+// =========================
+// NOMOR WHATSAPP TOKO
+// =========================
+
+const whatsappNumber = '6282283262013'
+
 // =========================
 // COMPUTED
 // =========================
@@ -348,6 +378,16 @@ const cartTotal = computed(() => {
     },
     0
   )
+})
+
+const formattedOrderIds = computed(() => {
+  if (!orderIds.value.length) {
+    return '-'
+  }
+
+  return orderIds.value
+    .map(id => `#${id}`)
+    .join(', ')
 })
 
 // =========================
@@ -402,6 +442,7 @@ const goHome = () => {
 // =========================
 
 const submitOrder = async () => {
+
   errorMessage.value = ''
 
   // =========================
@@ -438,36 +479,58 @@ const submitOrder = async () => {
   // =========================
 
   loading.value = true
+  orderIds.value = []
 
   try {
 
     /*
-     * Backend /api/pesanan hanya menerima
-     * satu id_produk dalam satu pesanan.
-     *
-     * Jadi setiap item dalam cart
-     * dikirim sebagai satu pesanan.
+     * Mengikuti backend saat ini:
+     * setiap item cart dikirim sebagai satu pesanan.
      */
 
     for (const item of cart.value) {
 
       const payload = {
-        id_petugas: 0,
+
+        id_petugas: null,
+
         id_produk: Number(item.id),
+
         qty: Number(item.quantity),
+
         alamat: form.value.alamat,
+
         nama_pelanggan: form.value.nama_pelanggan,
+
         nomor_hp: form.value.nomor_hp,
+
         total_pesanan:
           Number(item.price || 0) *
           Number(item.quantity || 0),
-        metode_pembayaran: form.value.metode_pembayaran,
-        status: 'Menunggu'
+
+        metode_pembayaran:
+          form.value.metode_pembayaran,
+
+        status:
+          form.value.metode_pembayaran === 'Transfer Bank'
+            ? 'Menunggu Pembayaran'
+            : 'Menunggu'
       }
 
       console.log('Mengirim pesanan:', payload)
 
-      await api.post('/pesanan', payload)
+      const response = await api.post(
+        '/pesanan',
+        payload
+      )
+
+      // Ambil ID pesanan dari response backend
+      const createdOrderId =
+        response?.data?.data?.id_pesanan
+
+      if (createdOrderId) {
+        orderIds.value.push(createdOrderId)
+      }
     }
 
     // =========================
@@ -493,6 +556,53 @@ const submitOrder = async () => {
     loading.value = false
 
   }
+}
+
+// =========================
+// WHATSAPP
+// =========================
+
+const openWhatsApp = () => {
+
+  const productDetails = cart.value
+    .map((item, index) => {
+      return `${index + 1}. ${item.name} x${item.quantity} - ${formatRupiah(
+        Number(item.price || 0) *
+        Number(item.quantity || 0)
+      )}`
+    })
+    .join('\n')
+
+  const ids = orderIds.value.length
+    ? orderIds.value
+        .map(id => `#${id}`)
+        .join(', ')
+    : '-'
+
+  const message = [
+    'Halo Jericho & Nesya 👋',
+    '',
+    'Saya baru saja membuat pesanan.',
+    '',
+    `ID Pesanan: ${ids}`,
+    `Nama: ${form.value.nama_pelanggan}`,
+    `No. HP: ${form.value.nomor_hp}`,
+    '',
+    'Detail Pesanan:',
+    productDetails,
+    '',
+    `Total: ${formatRupiah(cartTotal.value)}`,
+    `Metode Pembayaran: ${form.value.metode_pembayaran}`,
+    '',
+    `Alamat: ${form.value.alamat}`,
+    '',
+    'Mohon konfirmasi pesanan saya. Terima kasih.'
+  ].join('\n')
+
+  const whatsappUrl =
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
+
+  window.open(whatsappUrl, '_blank')
 }
 
 // =========================
@@ -1022,11 +1132,87 @@ onMounted(() => {
 }
 
 .success-modal p {
-  margin: 12px 0 25px;
+  margin: 12px 0 18px;
 
   color: #7b867e;
   font-size: 14px;
   line-height: 1.6;
+}
+
+
+/* =========================
+   ORDER ID
+========================= */
+
+.order-id-box {
+  margin: 0 0 18px;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  background: #f5f8f5;
+  border: 1px solid #e1e9e2;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.order-id-box span {
+  color: #879189;
+  font-size: 11px;
+}
+
+.order-id-box strong {
+  color: #405646;
+  font-size: 15px;
+}
+
+
+/* =========================
+   WHATSAPP BUTTON
+========================= */
+
+.whatsapp-button {
+  width: 100%;
+  border: none;
+
+  background: #25d366;
+  color: #ffffff;
+
+  padding: 14px 20px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+  margin-bottom: 10px;
+}
+
+.whatsapp-button:hover {
+  background: #1ebe5d;
+}
+
+
+/* =========================
+   SECONDARY BUTTON
+========================= */
+
+.secondary-button {
+  background: #ffffff;
+  color: #526d5a;
+
+  border: 1px solid #dce5de;
+}
+
+.secondary-button:hover {
+  background: #f5f8f5;
 }
 
 
