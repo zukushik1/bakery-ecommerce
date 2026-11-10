@@ -1,3 +1,4 @@
+
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from '../views/Home.vue'
@@ -8,6 +9,9 @@ import Produk from '../views/Produk.vue'
 import Pesanan from '../views/Pesanan.vue'
 import HistoryPelanggan from '../views/HistoryPelanggan.vue'
 import Pengaturan from '../views/Pengaturan.vue'
+
+// Dashboard khusus Petugas
+import PetugasDashboard from '../views/PetugasDashboard.vue'
 
 // ================= USER =================
 import Checkout from '../views/Checkout.vue'
@@ -28,13 +32,15 @@ const routes = [
     component: Checkout
   },
 
-  // ================= ADMIN / PETUGAS =================
+  // ================= LOGIN =================
 
   {
     path: '/login',
     name: 'login',
     component: Login
   },
+
+  // ================= ADMIN =================
 
   {
     path: '/dashboard',
@@ -64,6 +70,14 @@ const routes = [
     path: '/pengaturan',
     name: 'pengaturan',
     component: Pengaturan
+  },
+
+  // ================= PETUGAS =================
+
+  {
+    path: '/petugas/dashboard',
+    name: 'petugas-dashboard',
+    component: PetugasDashboard
   }
 
 ]

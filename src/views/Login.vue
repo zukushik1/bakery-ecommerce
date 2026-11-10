@@ -1,3 +1,4 @@
+
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -19,21 +20,29 @@ const login = async () => {
   }
 
   try {
+    // Backend menentukan role berdasarkan username dan password.
+    // Frontend tidak mengirim role Admin/Petugas.
     const response = await api.post('/auth/login', {
-      nama: username.value,
-      password: password.value,
-      role: 'admin'
+      username: username.value,
+      password: password.value
     })
 
-    // Simpan token JWT
+    const loggedInRole = String(
+      response.data.role || response.data.user?.role || ''
+    ).toLowerCase()
+
+    if (!['admin', 'petugas'].includes(loggedInRole)) {
+      errorMessage.value = 'Role akun tidak dikenali. Pastikan backend mengirimkan role setelah login.'
+      return
+    }
+
+    // Simpan data sesi setelah role berhasil dikenali.
     localStorage.setItem('token', response.data.token)
+    localStorage.setItem('role', loggedInRole)
+    localStorage.setItem('nama', response.data.nama || response.data.user?.nama || username.value)
 
-    // Simpan informasi user kalau nanti dibutuhkan
-    localStorage.setItem('role', 'admin')
-    localStorage.setItem('nama', username.value)
-
-    // Masuk dashboard
-    router.push('/dashboard')
+    // Arahkan otomatis sesuai role dari backend.
+    router.push(loggedInRole === 'petugas' ? '/petugas/dashboard' : '/dashboard')
 
   } catch (error) {
     console.error('Login error:', error)
@@ -48,7 +57,6 @@ const login = async () => {
   }
 }
 </script>
-
 
 <template>
   <div class="login-page">
@@ -111,23 +119,44 @@ const login = async () => {
     ========================== -->
     <section class="right-side">
 
-      <!-- ADMIN ACCESS -->
-      <div class="admin-access">
-        🔒 &nbsp; Admin Access
+      <!-- TOMBOL KEMBALI KE HOME -->
+      <router-link to="/" class="back-home">
+        <span>←</span>
+        Kembali ke Beranda
+      </router-link>
+
+      <!-- ROLE ACCESS BADGE -->
+      <div class="admin-access" aria-label="Akses khusus staf">
+        <span class="admin-access-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            <rect x="5" y="10" width="14" height="11" rx="3" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="15.5" r="1.2" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="admin-access-copy">
+          <strong>Staff Access</strong>
+          <small>Admin &amp; Petugas</small>
+        </span>
+        <span class="admin-status-dot" aria-hidden="true"></span>
       </div>
 
 
       <!-- LOGIN CARD -->
       <div class="login-card">
 
+        <div class="login-kicker">
+          <span></span>
+          MANAGEMENT PORTAL
+        </div>
+
         <h2>
-          Login Admin
+          Login
         </h2>
 
         <p class="subtitle">
-          Masuk untuk mengelola toko Jericho & Nesya
+          Masuk ke portal Jericho &amp; Nesya
         </p>
-
 
         <!-- USERNAME -->
         <div class="form-group">
@@ -498,26 +527,134 @@ const login = async () => {
 
   align-items: center;
 
-  padding: 70px 40px;
+  /* DITAMBAH: ruang atas dan bawah */
+  padding: 110px 40px 40px;
 
   background: #fffdfb;
 }
 
 
 /* =========================
-   ADMIN ACCESS
+   BACK TO HOME
+========================= */
+
+.back-home {
+  position: absolute;
+  top: 24px;
+  left: 4%;
+  z-index: 10;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 16px 10px 12px;
+  border: 1px solid rgba(113, 131, 99, 0.16);
+  border-radius: 999px;
+
+  color: #65795b;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 5px 18px rgba(65, 79, 57, 0.05);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: color 0.25s ease, background 0.25s ease,
+    border-color 0.25s ease, transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.back-home span {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #788b6d;
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.back-home:hover {
+  color: #607653;
+  background: #fff;
+  border-color: rgba(113, 131, 99, 0.35);
+  box-shadow: 0 8px 22px rgba(65, 79, 57, 0.1);
+  transform: translateY(-2px);
+}
+
+.back-home:hover span {
+  background: #ef9999;
+  transform: translateX(-3px);
+}
+
+
+/* =========================
+   ADMIN ACCESS BADGE
 ========================= */
 
 .admin-access {
   position: absolute;
+  top: 24px;
+  right: 4%;
+  z-index: 10;
 
-  top: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 
-  right: 8%;
+  padding: 9px 13px 9px 10px;
+  border: 1px solid rgba(113, 131, 99, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 20px rgba(65, 79, 57, 0.06);
+  color: #627658;
+}
 
-  color: #9ba88f;
+.admin-access-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  background: #eef2e8;
+  color: #718667;
+}
 
-  font-size: 15px;
+.admin-access-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.admin-access-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-access-copy strong {
+  color: #536b49;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.admin-access-copy small {
+  color: #9a9f92;
+  font-size: 9px;
+  letter-spacing: 0.15px;
+}
+
+.admin-status-dot {
+  width: 7px;
+  height: 7px;
+  margin-left: 3px;
+  border-radius: 50%;
+  background: #8ba77c;
+  box-shadow: 0 0 0 4px rgba(139, 167, 124, 0.13);
 }
 
 
@@ -528,7 +665,7 @@ const login = async () => {
 .login-card {
   width: min(570px, 100%);
 
-  min-height: 650px;
+  min-height: 700px;
 
   position: relative;
 
@@ -544,6 +681,33 @@ const login = async () => {
     rgba(100, 100, 100, 0.08);
 
   overflow: hidden;
+
+  /* DITAMBAH: card tidak dipaksa naik */
+  transform: translateY(0);
+}
+
+
+/* =========================
+   LOGIN KICKER
+========================= */
+
+.login-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #9aa58f;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.1px;
+}
+
+.login-kicker span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef9999;
 }
 
 
@@ -741,12 +905,14 @@ const login = async () => {
 
   gap: 25px;
 
-  transition: 0.2s;
+  transition: 0.25s ease;
 }
 
 
 .login-button:hover {
   background: #617658;
+  box-shadow: 0 9px 20px rgba(83, 107, 73, 0.2);
+  transform: translateY(-2px);
 }
 
 
@@ -804,15 +970,16 @@ const login = async () => {
 @media (max-height: 850px) and (min-width: 1101px) {
 
   .right-side {
-    align-items: flex-start;
+    align-items: center;
 
-    padding-top: 30px;
-    padding-bottom: 30px;
+    /* Jarak tambahan di desktop */
+    padding: 110px 40px 25px;
   }
 
-
   .login-card {
-    min-height: 630px;
+    transform: translateY(0);
+
+    min-height: 680px;
 
     padding-top: 42px;
   }
@@ -866,8 +1033,12 @@ const login = async () => {
   }
 
 
+  .back-home {
+    top: 24px;
+  }
+
   .admin-access {
-    top: 5px;
+    top: 24px;
   }
 
 }
@@ -898,19 +1069,25 @@ const login = async () => {
   }
 
 
+  .back-home {
+    top: 24px;
+    left: 50px;
+  }
+
   .admin-access {
-    top: 25px;
-
+    top: 24px;
     right: 50px;
+  }
 
-    font-size: 16px;
+  .login-card {
+    transform: translateY(0);
   }
 
 
   .login-card {
     width: min(700px, 100%);
 
-    min-height: 720px;
+    min-height: 760px;
 
     padding:
       70px
@@ -1008,19 +1185,56 @@ const login = async () => {
 
   .right-side {
     width: 100%;
-
     min-height: 100vh;
-
-    padding: 30px 15px;
+    min-height: 100svh;
+    padding: 88px 15px 25px;
+    align-items: center;
+    justify-content: center;
   }
 
 
+  .back-home {
+    top: 18px;
+    left: 15px;
+    padding: 7px 10px 7px 8px;
+    gap: 7px;
+    font-size: 11px;
+  }
+
+  .back-home span {
+    width: 22px;
+    height: 22px;
+    font-size: 16px;
+  }
+
   .admin-access {
-    top: 20px;
+    top: 18px;
+    right: 15px;
+    gap: 7px;
+    padding: 7px 10px 7px 8px;
+  }
 
-    right: 20px;
+  .admin-access-icon {
+    width: 30px;
+    height: 30px;
+  }
 
-    font-size: 13px;
+  .admin-access-copy strong {
+    font-size: 11px;
+  }
+
+  .admin-access-copy small {
+    font-size: 8px;
+  }
+
+  .admin-status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .login-kicker {
+    font-size: 9px;
+    letter-spacing: 1.7px;
   }
 
 
@@ -1029,7 +1243,9 @@ const login = async () => {
 
     min-height: 680px;
 
-    margin-top: 35px;
+    margin-top: 0;
+    min-height: 700px;
+    transform: translateY(0);
 
     padding:
       40px
@@ -1045,6 +1261,40 @@ const login = async () => {
 
   .subtitle {
     font-size: 15px;
+  }
+
+  /* Layar HP kecil */
+  @media (max-width: 380px) {
+    .back-home {
+      left: 10px;
+      padding: 6px 8px 6px 7px;
+      font-size: 10px;
+    }
+
+    .admin-access {
+      right: 10px;
+      gap: 5px;
+      padding: 6px 8px;
+    }
+
+    .admin-access-copy small {
+      display: none;
+    }
+
+    .admin-access-icon {
+      width: 26px;
+      height: 26px;
+    }
+
+    .admin-status-dot {
+      display: none;
+    }
+
+    .login-card {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
   }
 
 }
