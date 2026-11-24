@@ -40,15 +40,6 @@
           <span>Produk</span>
         </router-link>
 
-        <router-link
-          to="/pesanan"
-          class="menu-item"
-          @click="closeMenu"
-        >
-          <span class="menu-icon">🛍</span>
-          <span>Pesanan</span>
-        </router-link>
-
         <!-- HISTORY PELANGGAN -->
         <router-link
           to="/history-pelanggan"
@@ -133,7 +124,7 @@
           </span>
 
           <h1>
-            Dashboard
+            Dashboard Admin
           </h1>
         </div>
 

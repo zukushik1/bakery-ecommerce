@@ -332,26 +332,6 @@ onMounted(() => {
 
         </router-link>
 
-
-        <!-- PESANAN -->
-
-        <router-link
-          to="/pesanan"
-          class="menu-item"
-          @click="showMenu = false"
-        >
-
-          <span class="menu-icon">
-            🛍
-          </span>
-
-          <span>
-            Pesanan
-          </span>
-
-        </router-link>
-
-
         <!-- HISTORY PELANGGAN -->
 
         <router-link
